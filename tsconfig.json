@@ -16,5 +16,5 @@
     "outDir": "dist",
     "rootDir": "."
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", "jest.config.ts"]
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
 }
