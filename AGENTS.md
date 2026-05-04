@@ -11,6 +11,7 @@ Short operational guide for agents working in this repository.
 - `src/core/secretStore.ts` — keytar wrapper (macOS Keychain / libsecret)
 - `src/core/openrouter.ts` — OpenRouter API client (openai SDK)
 - `src/profiles/index.ts` — 8x ModelProfile definitions with full system prompts
+- `src/guide.ts` — Pure function `buildGuideMarkdown()` for generating prompting guide
 - `src/transform/index.ts` — Build system prompt, call LLM, parse response
 - `src/index.ts` — Library entry: `limn(prompt, model)` + re-exports
 - `scripts/build-guide.ts` — Generates `docs/PROMPTING_GUIDE.md` from profiles

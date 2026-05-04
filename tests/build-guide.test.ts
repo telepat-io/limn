@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { buildGuideMarkdown } from '../scripts/build-guide.js';
+import { buildGuideMarkdown } from '../src/guide.js';
 import { profiles } from '../src/profiles/index.js';
 import { VALID_MODELS } from '../src/types.js';
 import type { ModelId, ModelProfile } from '../src/types.js';
