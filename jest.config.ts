@@ -1,0 +1,44 @@
+import type { Config } from 'jest';
+
+const config: Config = {
+  preset: 'ts-jest/presets/default-esm',
+  testEnvironment: 'node',
+  testMatch: ['**/tests/**/*.test.ts'],
+  collectCoverageFrom: ['src/**/*.ts'],
+  coveragePathIgnorePatterns: [
+    'src/types.ts',
+    'src/cli/index.ts',
+    'src/bin.ts',
+    'src/core/openrouter.ts',
+    'src/core/secretStore.ts',
+    'src/core/config.ts',
+    'src/cli/settings.ts',
+  ],
+  coverageThreshold: {
+    global: {
+      lines: 50,
+      functions: 50,
+      branches: 40,
+      statements: 50,
+    },
+  },
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
+  transformIgnorePatterns: [
+    '/node_modules/(?!(env-paths)/)',
+  ],
+  transform: {
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        useESM: true,
+        diagnostics: {
+          ignoreCodes: ['151002'],
+        },
+      },
+    ],
+  },
+};
+
+export default config;

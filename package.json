@@ -1,0 +1,65 @@
+{
+  "name": "@telepat/limn",
+  "version": "0.1.0",
+  "description": "Translate natural language prompts into model-optimized prompts for T2I image generation models",
+  "type": "module",
+  "license": "MIT",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "bin": {
+    "limn": "dist/src/bin.js"
+  },
+  "files": [
+    "dist/src",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli/index.ts",
+    "lint": "eslint src tests --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
+    "build:guide": "tsx scripts/build-guide.ts",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run test && npm run build"
+  },
+  "keywords": [
+    "t2i",
+    "text-to-image",
+    "prompt",
+    "prompt-engineering",
+    "flux",
+    "sdxl",
+    "cli"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/telepat-io/limn.git"
+  },
+  "bugs": {
+    "url": "https://github.com/telepat-io/limn/issues"
+  },
+  "homepage": "https://github.com/telepat-io/limn",
+  "dependencies": {
+    "commander": "^14.0.1",
+    "env-paths": "^3.0.0",
+    "keytar": "^7.9.0",
+    "openai": "^5.0.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^24.6.0",
+    "eslint": "^9.39.1",
+    "globals": "^16.4.0",
+    "jest": "^30.0.0",
+    "ts-jest": "^29.3.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.1"
+  }
+}
