@@ -1,361 +1,114 @@
-# Limn
+<p align="center"><img src="./assets/avatar/limn-logo.webp" width="128" alt="Limn"></p>
+<h1 align="center">Limn</h1>
+<p align="center"><em>Turn rough ideas into production-ready image prompts for any T2I model, with one command.</em></p>
 
-Translate natural language prompts into model-optimized prompts for T2I image generation models, and optionally generate the image.
+<p align="center">
+  <a href="https://github.com/telepat-io/limn">📖 Docs</a>
+  · <a href="./README.md">🇺🇸 English</a>
+  · <a href="./README.zh-CN.md">🇨🇳 简体中文</a>
+</p>
 
-Each T2I model has different prompting preferences: tag-based, prose, camera-style, and more.
-Limn encodes this knowledge into per-model system prompts and uses an LLM (via OpenRouter) to rewrite your raw idea into model-optimized form.
+<p align="center">
+  <a href="https://github.com/telepat-io/limn/actions/workflows/ci.yml"><img src="https://github.com/telepat-io/limn/actions/workflows/ci.yml/badge.svg?branch=main" alt="Build"></a>
+  <a href="https://codecov.io/gh/telepat-io/limn"><img src="https://codecov.io/gh/telepat-io/limn/graph/badge.svg" alt="Codecov"></a>
+  <a href="https://www.npmjs.com/package/@telepat/limn"><img src="https://img.shields.io/npm/v/@telepat/limn" alt="npm"></a>
+  <a href="https://github.com/telepat-io/limn/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="License"></a>
+</p>
 
-## Install
+Limn translates plain ideas into model-optimized prompts for text-to-image generation. Pick a target model, describe what you want, and Limn rewrites your concept using that model's preferred syntax — tag‑based for SDXL, natural prose for FLUX, cinematic language for Wan‑Image, and more.
 
-```bash
-npm install -g @telepat/limn
-```
+Built for developers, designers, and anyone who needs production-quality image prompts without studying each model's prompting quirks.
 
-For library usage in a project:
+## Features
 
-```bash
-npm install @telepat/limn
-```
-
-Requires Node >=20.
-
-Check your Node version:
-
-```bash
-node --version
-```
+- **One prompt, any model** — FLUX, SDXL, Nano Banana Pro, Seedream‑4, Z‑Image Turbo, Chroma, Qwen Image, and Wan‑Image. Limn rewrites your idea for whichever syntax that model expects.
+- **Transform or generate** — Optimize prompts only, or go all the way with Replicate-backed image generation. Get back a WebP file with full cost and timing analytics.
+- **Per-model prompt intelligence** — Every model profile encodes real prompting rules: tag‑based for SDXL, prose for FLUX, reasoning‑first structure for Nano Banana Pro. No guesswork.
+- **Cost analytics built-in** — Token counts, generation time, and OpenRouter plus Replicate costs displayed after every run. JSON output captures every number for automation.
+- **Smart API key management** — Keys resolve from environment variables or OS keychain. No plaintext dotfiles. Secret values are redacted by default.
+- **Programmatic API** — Call `limn()`, `limnGenerate()`, or instantiate the `Limn` class with keys passed directly. TypeScript‑first with full type coverage.
+- **Inline image preview** — Terminals that support it render the generated image inside the console after generation.
+- **Model catalog API** — `getSupportedModelCatalog()` exposes all model metadata. Drive downstream selectors and validators from Limn's canonical model definitions.
 
 ## Quick Start
 
+Install and generate your first image:
+
 ```bash
-# Configure your API keys
+npm i -g @telepat/limn
 limn settings set openrouterApiKey sk-or-...
 limn settings set replicateApiKey r8_...
+limn -m flux "a cat in space" --generate
+```
 
-# Transform a prompt for SDXL
+Expected outcome:
+
+- Limn transforms your prompt into FLUX-optimized syntax via OpenRouter.
+- Replicate generates and saves a timestamped `.webp` to the current directory.
+- Cost and timing analytics are displayed after every run.
+
+## Requirements
+
+- Node.js 20+
+- npm
+- OpenRouter API key
+- Replicate API token (for generation)
+
+## How It Works
+
+Limn loads a per-model profile that encodes the preferred prompt syntax for that T2I model. It sends your raw prompt — plus the profile's system instructions — to an LLM via OpenRouter. The LLM returns a model-optimized prompt. Optionally, Limn sends that prompt to Replicate for image generation.
+
+Core commands:
+
+```bash
+# Transform only
 limn -m sdxl "a cat in space"
 
-# Transform AND generate the image
+# Transform and generate
 limn -m flux "a cat in space" --generate
 
 # JSON output
 limn -m flux "a cat in space" --generate --json
+
+# Custom aspect ratio
+limn -m flux "a cat in space" --generate --aspect-ratio 16:9
+
+# Override Replicate model
+limn -m flux "a cat in space" --generate --replicate-model black-forest-labs/flux-2-pro
 ```
 
-Transform-only output:
-```
-masterpiece, best quality, (fluffy orange tabby cat:1.3), floating in
-outer space, cosmic nebula background, (starry sky:1.2), detailed fur
-texture, soft rim lighting, 8k uhd
+Per-model prompting strategies are documented in the [Prompting Guide](https://github.com/telepat-io/limn/blob/main/docs/PROMPTING_GUIDE.md).
 
-negative_prompt: low quality, blurry, distorted, extra limbs, watermark
-```
+## Using With AI Agents
 
-Generate output:
-```
-Transformed prompt: a fluffy tabby cat drifting through deep space...
+Limn is designed for agentic and automated workflows:
 
-Image saved: ./limn_flux-schnell_2026-05-05_12-00-00.webp
-Model used:  black-forest-labs/flux-schnell
+- **Machine-readable output** — `--json` returns structured JSON for both transform-only and generate runs. Every field is typed and predictable.
+- **Programmatic API** — The library exports `limn()` and `limnGenerate()` for functional use, plus the `Limn` class for object‑oriented workflows with injected API keys. No interactive prompts required.
+- **CI‑ready** — Pass keys via `OPENROUTER_API_KEY` and `REPLICATE_API_TOKEN` environment variables, or through the `Limn` constructor. No keychain or interactive settings command needed.
+- **Model catalog API** — `getSupportedModelCatalog()` exposes canonical model metadata for downstream tooling and runtime validation.
 
-── Generation Analytics ──────────────────────────────
-  Total time:        3.2s
-  Prompt transform:  1.1s
-  Image generation:  2.1s
+## Security and Trust
 
-  OpenRouter cost:   $0.0002 (60 tokens)
-  Replicate cost:    $0.0030 (estimated)
-  Total est. cost:   $0.0032
-  Cost source:       actual+estimate
-  Prediction ID:     abc123xyz
-──────────────────────────────────────────────────────
-```
+- API keys are stored in the OS keychain by default via `limn settings`.
+- In CI or containerized environments, use `OPENROUTER_API_KEY` and `REPLICATE_API_TOKEN` environment variables.
+- Set `LIMN_DISABLE_KEYTAR=true` when keychain access is unavailable.
+- `limn settings list` redacts secret values as `***configured***`.
+- Generated images are model-produced output. Review images before publishing.
 
-If the terminal supports it, the image is rendered inline after generation.
+To report a security issue, see the [security policy](https://github.com/telepat-io/limn/blob/main/SECURITY.md) or open a private report through the repository security flow.
 
-JSON output (generate):
+## Documentation and Support
 
-```json
-{
-  "model": "black-forest-labs/flux-schnell",
-  "prompt": "a fluffy tabby cat drifting through deep space...",
-  "filename": "limn_flux-schnell_2026-05-05_12-00-00.webp",
-  "savedPath": "/abs/path/limn_flux-schnell_2026-05-05_12-00-00.webp",
-  "mimeType": "image/webp",
-  "analytics": {
-    "totalDurationMs": 3200,
-    "openrouterDurationMs": 1100,
-    "replicateDurationMs": 2100,
-    "openrouterUsage": {
-      "promptTokens": 42,
-      "completionTokens": 18,
-      "totalTokens": 60,
-      "costUsd": 0.0002,
-      "generationId": "gen_abc123"
-    },
-    "openrouterCostUsd": 0.0002,
-    "openrouterGenerationId": "gen_abc123",
-    "replicatePredictionId": "abc123xyz",
-    "replicateEstimatedCostUsd": 0.003,
-    "totalEstimatedCostUsd": 0.0032,
-    "costSource": "actual+estimate"
-  }
-}
-```
+- [Repository](https://github.com/telepat-io/limn)
+- [Prompting Guide](https://github.com/telepat-io/limn/blob/main/docs/PROMPTING_GUIDE.md)
+- [npm package](https://www.npmjs.com/package/@telepat/limn)
+- [Issues](https://github.com/telepat-io/limn/issues)
 
-## Usage
+## Contributing
 
-```
-limn [options] <prompt>
-
-Options:
-  -m, --model <model>            Target T2I model (required at runtime)
-  --generate                     Generate the image via Replicate after transforming
-  --replicate-model <modelId>    Override the default Replicate model for the selected family
-  --aspect-ratio <ratio>         Aspect ratio for generation (default: 1:1)
-  --json                         Output as JSON instead of plain text
-
-Settings:
-  limn settings set <key> <value>   Set a configuration value
-  limn settings get <key>           Get a configuration value
-  limn settings list                List all configuration values
-  limn settings unset <key>         Remove a configuration value
-```
-
-Valid settings keys:
-
-- `openrouterApiKey` (secret)
-- `openrouterModel`
-- `replicateApiKey` (secret)
-
-Notes:
-
-- `settings list` redacts secret values as `***configured***`.
-- Secret keys are stored in OS credential storage by default.
-
-### Supported aspect ratios
-
-`1:1` (default) · `16:9` · `9:16` · `4:3` · `3:4` · `3:2` · `2:3` · `2:1` · `1:2` · `21:9`
-
-Dimension mapping used for generation:
-
-| Ratio | Width | Height |
-|-------|-------|--------|
-| `1:1` | 1024 | 1024 |
-| `16:9` | 1344 | 768 |
-| `9:16` | 768 | 1344 |
-| `4:3` | 1152 | 896 |
-| `3:4` | 896 | 1152 |
-| `3:2` | 1216 | 832 |
-| `2:3` | 832 | 1216 |
-| `2:1` | 1408 | 704 |
-| `1:2` | 704 | 1408 |
-| `21:9` | 1536 | 640 |
-
-If an unsupported aspect ratio is provided programmatically, Limn falls back to `1:1`.
-
-## Supported Models
-
-| Model | Provider | Style | Generation |
-|-------|----------|-------|-----------|
-| `flux` | Black Forest Labs | Natural prose, front-loaded, layered | ✓ |
-| `sdxl` | Stability AI | Comma tags + quality boosters + negative prompt | ✓ |
-| `nano-banana-pro` | Google DeepMind | Reasoning-first, 5-part structure | ✓ |
-| `seedream-4` | ByteDance | Full sentences, no tags, quote-wrap text | ✓ |
-| `z-image-turbo` | Alibaba / Tongyi-MAI | Camera-style prose, no negative prompts | ✓ |
-| `chroma` | WaveSpeed AI / Community | Style-forward, exhaustive | Transform only |
-| `qwen-image` | Alibaba / Qwen | Natural language + quality suffix, positional logic | ✓ |
-| `wan-image` | Alibaba / Wan | Cinematographic lexicon | ✓ |
-
-### Valid `--replicate-model` overrides by family
-
-`--replicate-model` must be one of the allowed Replicate model IDs for the selected family.
-
-| Family (`-m`) | Allowed Replicate model IDs | Default |
-|---------------|------------------------------|---------|
-| `flux` | `black-forest-labs/flux-schnell`, `black-forest-labs/flux-2-pro` | `black-forest-labs/flux-schnell` |
-| `sdxl` | `stability-ai/sdxl` | `stability-ai/sdxl` |
-| `nano-banana-pro` | `google/nano-banana-pro` | `google/nano-banana-pro` |
-| `seedream-4` | `bytedance/seedream-4` | `bytedance/seedream-4` |
-| `z-image-turbo` | `prunaai/z-image-turbo` | `prunaai/z-image-turbo` |
-| `qwen-image` | `qwen/qwen-image`, `qwen/qwen-image-2512`, `qwen/qwen-image-2`, `qwen/qwen-image-2-pro` | `qwen/qwen-image-2` |
-| `wan-image` | `prunaai/wan-2.2-image` | `prunaai/wan-2.2-image` |
-| `chroma` | generation not supported | n/a |
-
-## Configuration
-
-Limn resolves API keys in this order:
-
-**OpenRouter key:**
-1. `OPENROUTER_API_KEY` environment variable
-2. OS keychain (macOS Keychain / Linux libsecret)
-
-**Replicate key:**
-1. `REPLICATE_API_TOKEN` environment variable
-2. `REPLICATE_API_KEY` environment variable
-3. OS keychain
-
-`openrouterModel` is loaded from global config (`limn settings set openrouterModel ...`).
-If not set, Limn defaults to `deepseek/deepseek-v4-pro`.
-
-The LLM model used for prompt transformations can be set via:
-
-```bash
-limn settings set openrouterModel deepseek/deepseek-v4-pro
-```
-
-### Environment Variables
-
-| Variable | Purpose |
-|----------|---------|
-| `OPENROUTER_API_KEY` | OpenRouter API key |
-| `REPLICATE_API_TOKEN` | Replicate API key (highest precedence) |
-| `REPLICATE_API_KEY` | Replicate API key (alternate name) |
-| `LIMN_DISABLE_KEYTAR` | Set to `true` (case-insensitive) to skip keychain |
-| `NO_COLOR` | Disable color output |
-| `FORCE_COLOR` | Force color output when supported |
-| `TERM` | Affects color detection (`dumb` disables color) |
-
-## Library API
-
-### Transform only
-
-```ts
-import { limn } from '@telepat/limn';
-
-const result = await limn('a cat in space', 'sdxl');
-// { model: 'sdxl', prompt: '...', negativePrompt: '...' }
-```
-
-JSON output (transform-only with CLI `--json`) follows the same shape:
-
-```json
-{
-  "model": "sdxl",
-  "prompt": "masterpiece, best quality, ...",
-  "negativePrompt": "low quality, blurry, ..."
-}
-```
-
-### Generate image
-
-```ts
-import { limnGenerate } from '@telepat/limn';
-
-const result = await limnGenerate('a cat in space', 'flux');
-// {
-//   image: Buffer,
-//   filename: 'limn_flux-schnell_2026-05-05_12-00-00.webp',
-//   savedPath: '/path/to/limn_flux-schnell_2026-05-05_12-00-00.webp',
-//   mimeType: 'image/webp',
-//   modelSlug: 'black-forest-labs/flux-schnell',
-//   promptUsed: '...',
-//   analytics: { totalDurationMs, openrouterCostUsd, replicatePredictionId, ... }
-// }
-```
-
-### Class-based (inject API keys)
-
-```ts
-import { Limn } from '@telepat/limn';
-
-const limn = new Limn({
-  openrouterApiKey: 'sk-or-...',
-  replicateApiKey: 'r8_...',
-});
-
-// Transform only
-const transformed = await limn.transform('a cat in space', 'flux');
-
-// Transform + generate
-const result = await limn.generate('a cat in space', 'flux', {
-  aspectRatio: '16:9',
-  replicateModel: 'black-forest-labs/flux-2-pro', // optional override
-});
-```
-
-### Analytics object
-
-Both `limnGenerate` and `Limn.generate()` return a `GenerationAnalytics` object:
-
-```ts
-interface GenerationAnalytics {
-  totalDurationMs: number;
-  openrouterDurationMs: number;
-  replicateDurationMs: number;
-  openrouterUsage: OpenRouterUsage | null;
-  openrouterCostUsd: number | null;       // actual cost from OpenRouter
-  openrouterGenerationId: string | null;
-  replicatePredictionId: string;
-  replicateEstimatedCostUsd: number | null; // estimated from pricing tables
-  totalEstimatedCostUsd: number | null;
-  costSource: 'actual+estimate' | 'estimate-only' | 'unknown';
-}
-```
-
-### Supported model catalog API
-
-```ts
-import {
-  getSupportedModelCatalog,
-  type SupportedModelCatalogEntry,
-} from '@telepat/limn';
-
-const catalog = getSupportedModelCatalog();
-// [
-//   {
-//     family: 'flux',
-//     displayName: 'FLUX',
-//     generationEnabled: true,
-//     replicateModelIds: ['black-forest-labs/flux-schnell', 'black-forest-labs/flux-2-pro'],
-//     defaultReplicateModelId: 'black-forest-labs/flux-schnell'
-//   },
-//   ...
-// ]
-```
-
-Use this API when you need to drive downstream model selectors or runtime validation from Limn's canonical model metadata.
-
-### Additional exports
-
-```ts
-import {
-  profiles,
-  VALID_MODELS,
-  getSupportedModelCatalog,
-  type ModelId,
-  type ModelProfile,
-  type SupportedModelCatalogEntry,
-  type TransformedResult,
-  type OutputFormat,
-  type LimnGenerateResult,
-  type GenerationAnalytics,
-  type OpenRouterUsage,
-} from '@telepat/limn';
-```
-
-`profiles` exposes the model profiles/system prompts used by Limn.
-
-## Development
-
-```bash
-npm run dev        # run CLI from source
-npm run lint
-npm run typecheck
-npm run test
-npm run build:guide
-```
-
-## Prompting Guide
-
-See [docs/PROMPTING_GUIDE.md](docs/PROMPTING_GUIDE.md) for comprehensive per-model prompting strategies.
-
-`docs/PROMPTING_GUIDE.md` is generated from profile metadata. Regenerate with:
-
-```bash
-npm run build:guide
-```
+Contributions are welcome. Open an issue or pull request on [GitHub](https://github.com/telepat-io/limn).
 
 ## License
 
-MIT
+MIT. See [LICENSE](./LICENSE).
