@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.2](https://github.com/telepat-io/limn/compare/limn-v0.1.1...limn-v0.1.2) (2026-05-05)
+
+
+### Bug Fixes
+
+* remove unused MIME_TO_EXT mapping from image generation module ([1e17a29](https://github.com/telepat-io/limn/commit/1e17a297580d125247efa645b16b342b0e8d4c1e))
+* update @telepat/ansie dependency to version ^0.1.1 in package.json and package-lock.json ([8954576](https://github.com/telepat-io/limn/commit/8954576924d8edc340a6dc8632998440dbdf90f6))
+
 ## [0.1.1](https://github.com/telepat-io/limn/compare/limn-v0.1.0...limn-v0.1.1) (2026-05-05)
 
 
