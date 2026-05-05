@@ -34,13 +34,6 @@ export interface ImageGenerationResult {
   inputSentToModel: Record<string, unknown>;
 }
 
-const MIME_TO_EXT: Record<string, string> = {
-  'image/png': 'png',
-  'image/jpeg': 'jpg',
-  'image/webp': 'webp',
-  'image/gif': 'gif',
-};
-
 const EXT_TO_MIME: Record<string, string> = {
   png: 'image/png',
   jpg: 'image/jpeg',
