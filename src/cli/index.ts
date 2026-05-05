@@ -12,7 +12,11 @@ import { readGlobalConfig } from '../core/config.js';
 import { callOpenRouterFull } from '../core/openrouter.js';
 import { generateImage } from '../core/imageGeneration.js';
 import { buildAnalytics } from '../core/costs.js';
-import { resolveReplicateModelId } from '../models/registry.js';
+import {
+  resolveReplicateModelId,
+  DEFINITIONS_BY_MODEL_ID,
+  getUserConfigurableFields,
+} from '../models/registry.js';
 
 function resolveCliVersion(): string {
   const envVersion = process.env['npm_package_version'];
@@ -192,6 +196,45 @@ function printAnalytics(analytics: GenerationAnalytics, c: Colors): void {
   console.log(rule);
 }
 
+// ── List options helper ───────────────────────────────────────────────────────
+
+function printModelOptions(modelId: ModelId, c: Colors): void {
+  const replicateModelSlug = resolveReplicateModelId(modelId);
+  const definition = DEFINITIONS_BY_MODEL_ID[replicateModelSlug];
+  if (!definition) {
+    console.error(`No definition found for model "${modelId}".`);
+    return;
+  }
+
+  const fields = getUserConfigurableFields(definition);
+  if (fields.length === 0) {
+    console.log(c.dim('No user-configurable options for this model.'));
+    return;
+  }
+
+  console.log(`${c.bold('Options for')} ${c.cyan(modelId)} ${c.dim(`(${replicateModelSlug})`)}`);
+  console.log('');
+
+  const nameWidth = Math.max(...fields.map((f) => f.name.length), 4);
+
+  for (const { name, schema } of fields) {
+    const typeLabel = schema.enum
+      ? `enum[${schema.enum.join(', ')}]`
+      : schema.type;
+    const defaultLabel = schema.default !== undefined ? `default: ${String(schema.default)}` : '';
+    const rangeLabel =
+      schema.minimum !== undefined && schema.maximum !== undefined
+        ? `${schema.minimum}..${schema.maximum}`
+        : schema.minimum !== undefined
+          ? `>=${schema.minimum}`
+          : schema.maximum !== undefined
+            ? `<=${schema.maximum}`
+            : '';
+    const meta = [typeLabel, rangeLabel, defaultLabel].filter(Boolean).join(' | ');
+    console.log(`  ${c.cyan(name.padEnd(nameWidth))}  ${c.dim(meta)}`);
+  }
+}
+
 // ── CLI ───────────────────────────────────────────────────────────────────────
 
 export async function runCli(args: string[]): Promise<number> {
@@ -210,6 +253,8 @@ export async function runCli(args: string[]): Promise<number> {
     .option('--generate', 'Generate the image via Replicate after transforming the prompt')
     .option('--replicate-model <modelId>', 'Override the default Replicate model for the selected family')
     .option('--aspect-ratio <ratio>', 'Aspect ratio for generation (e.g. 1:1, 16:9, 9:16)', '1:1')
+    .option('--options <json>', 'JSON object of user-configurable model options (e.g. \'{"num_outputs":2}\')')
+    .option('--list-options', 'List available options for the selected model and exit')
     .action(async (prompt, options) => {
       const model = options.model;
       if (!model) {
@@ -223,14 +268,37 @@ export async function runCli(args: string[]): Promise<number> {
         return;
       }
 
+      const modelId = model as ModelId;
+
+      if (options.listOptions) {
+        const c = makeColors(detectColorSupport());
+        printModelOptions(modelId, c);
+        return;
+      }
+
+      let parsedOptions: Record<string, unknown> | undefined;
+      if (options.options) {
+        try {
+          parsedOptions = JSON.parse(options.options) as Record<string, unknown>;
+        } catch {
+          console.error('error: --options must be a valid JSON object string');
+          process.exitCode = 1;
+          return;
+        }
+        if (typeof parsedOptions !== 'object' || parsedOptions === null || Array.isArray(parsedOptions)) {
+          console.error('error: --options must be a valid JSON object');
+          process.exitCode = 1;
+          return;
+        }
+      }
+
       if (options.generate) {
         try {
-          const modelId = model as ModelId;
-
           if (options.json) {
             const result = await limnGenerate(prompt, modelId, {
               replicateModel: options.replicateModel,
               aspectRatio: options.aspectRatio,
+              options: parsedOptions,
             });
             console.log(JSON.stringify({
               model: result.modelSlug,
@@ -282,6 +350,7 @@ export async function runCli(args: string[]): Promise<number> {
             replicateModelOverride: options.replicateModel,
             aspectRatio: options.aspectRatio,
             config,
+            options: parsedOptions,
           });
           spinner.succeed(`Image generated      (${c.dim(imageResult.modelSlug)})`);
 

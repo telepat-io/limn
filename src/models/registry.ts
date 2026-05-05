@@ -161,6 +161,171 @@ export const FAMILY_REGISTRY: Record<ModelId, FamilyEntry> = {
   },
 };
 
+export interface ValidationError {
+  key: string;
+  reason: string;
+}
+
+export interface ValidationResult {
+  valid: boolean;
+  coerced?: unknown;
+  error?: ValidationError;
+}
+
+function isInteger(n: number): boolean {
+  return Number.isFinite(n) && Math.floor(n) === n;
+}
+
+export function validateUserOption(
+  definition: ModelDefinition,
+  key: string,
+  value: unknown,
+): ValidationResult {
+  const configurable = definition.inputOptions.userConfigurable;
+  const managed = definition.inputOptions.pipelineManaged;
+
+  if (managed.includes(key)) {
+    return {
+      valid: false,
+      error: { key, reason: `"${key}" is managed by the pipeline and cannot be overridden.` },
+    };
+  }
+
+  if (!configurable.includes(key)) {
+    const validKeys = configurable.join(', ');
+    return {
+      valid: false,
+      error: { key, reason: `"${key}" is not a configurable option for this model. Valid options: ${validKeys}` },
+    };
+  }
+
+  const field = definition.inputOptions.fields[key];
+  if (!field) {
+    return {
+      valid: false,
+      error: { key, reason: `No schema definition found for "${key}".` },
+    };
+  }
+
+  if (value === null) {
+    if (field.nullable) {
+      return { valid: true, coerced: null };
+    }
+    return {
+      valid: false,
+      error: { key, reason: `"${key}" does not accept null values.` },
+    };
+  }
+
+  let coerced: unknown = value;
+
+  switch (field.type) {
+    case 'integer': {
+      if (typeof value === 'string') {
+        const parsed = Number(value);
+        if (Number.isNaN(parsed) || !isInteger(parsed)) {
+          return {
+            valid: false,
+            error: { key, reason: `"${key}" must be an integer.` },
+          };
+        }
+        coerced = parsed;
+      } else if (typeof value === 'number') {
+        if (!isInteger(value)) {
+          return {
+            valid: false,
+            error: { key, reason: `"${key}" must be an integer.` },
+          };
+        }
+        coerced = value;
+      } else {
+        return {
+          valid: false,
+          error: { key, reason: `"${key}" must be an integer.` },
+        };
+      }
+      break;
+    }
+    case 'number': {
+      if (typeof value === 'string') {
+        const parsed = Number(value);
+        if (Number.isNaN(parsed)) {
+          return {
+            valid: false,
+            error: { key, reason: `"${key}" must be a number.` },
+          };
+        }
+        coerced = parsed;
+      } else if (typeof value !== 'number') {
+        return {
+          valid: false,
+          error: { key, reason: `"${key}" must be a number.` },
+        };
+      }
+      break;
+    }
+    case 'boolean': {
+      if (typeof value === 'string') {
+        const lowered = value.toLowerCase();
+        if (lowered === 'true') coerced = true;
+        else if (lowered === 'false') coerced = false;
+        else {
+          return {
+            valid: false,
+            error: { key, reason: `"${key}" must be a boolean.` },
+          };
+        }
+      } else if (typeof value !== 'boolean') {
+        return {
+          valid: false,
+          error: { key, reason: `"${key}" must be a boolean.` },
+        };
+      }
+      break;
+    }
+    case 'string': {
+      if (typeof value !== 'string') {
+        return {
+          valid: false,
+          error: { key, reason: `"${key}" must be a string.` },
+        };
+      }
+      break;
+    }
+    default:
+      break;
+  }
+
+  if (field.enum && !field.enum.includes(String(coerced))) {
+    return {
+      valid: false,
+      error: { key, reason: `"${key}" must be one of: ${field.enum.join(', ')}.` },
+    };
+  }
+
+  if (field.minimum !== undefined && typeof coerced === 'number' && coerced < field.minimum) {
+    return {
+      valid: false,
+      error: { key, reason: `"${key}" must be at least ${field.minimum}.` },
+    };
+  }
+
+  if (field.maximum !== undefined && typeof coerced === 'number' && coerced > field.maximum) {
+    return {
+      valid: false,
+      error: { key, reason: `"${key}" must be at most ${field.maximum}.` },
+    };
+  }
+
+  return { valid: true, coerced };
+}
+
+export function getUserConfigurableFields(definition: ModelDefinition): Array<{ name: string; schema: FieldDefinition }> {
+  return definition.inputOptions.userConfigurable
+    .map((name) => ({ name, schema: definition.inputOptions.fields[name] }))
+    .filter((entry): entry is { name: string; schema: FieldDefinition } => !!entry.schema);
+}
+
 export function getSupportedModelCatalog(): SupportedModelCatalogEntry[] {
   return (Object.keys(FAMILY_REGISTRY) as ModelId[]).map((family) => {
     const entry = FAMILY_REGISTRY[family];

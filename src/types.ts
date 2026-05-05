@@ -33,6 +33,7 @@ export interface GlobalConfig {
   openrouterApiKey?: string;
   openrouterModel?: string;
   replicateApiKey?: string;
+  modelOptions?: Record<string, Record<string, unknown>>;
 }
 
 export interface OpenRouterUsage {

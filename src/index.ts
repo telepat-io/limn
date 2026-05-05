@@ -25,6 +25,7 @@ export interface LimnConstructorOptions {
 export interface LimnGenerateOptions {
   replicateModel?: string;
   aspectRatio?: string;
+  options?: Record<string, unknown>;
 }
 
 export class Limn {
@@ -54,6 +55,7 @@ export class Limn {
       openrouterApiKey: this.config.openrouterApiKey,
       replicateApiKey: this.config.replicateApiKey,
       openrouterModel: this.config.openrouterModel,
+      options: options.options,
     });
   }
 }
@@ -101,6 +103,7 @@ export async function limnGenerate(
     replicateModelOverride: options.replicateModel,
     aspectRatio: options.aspectRatio,
     config,
+    options: options.options,
   });
 
   // Step 3: Build analytics

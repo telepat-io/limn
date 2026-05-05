@@ -62,4 +62,24 @@ describe('CLI', () => {
       expect(VALID_MODELS.includes(model as typeof VALID_MODELS[number])).toBe(true);
     }
   });
+
+  it('should list options with --list-options', async () => {
+    await runCli(['-m', 'flux', '--list-options', 'dummy']);
+    const output = logSpy.mock.calls.map((c) => c[0]).join('\n');
+    expect(output).toContain('num_outputs');
+    expect(output).toContain('output_format');
+    expect(output).toContain('seed');
+  });
+
+  it('should error for invalid --options JSON', async () => {
+    await runCli(['-m', 'flux', '--generate', '--options', 'not-json', 'a cat']);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('valid JSON'));
+    expect(process.exitCode).toBe(1);
+  });
+
+  it('should error for non-object --options', async () => {
+    await runCli(['-m', 'flux', '--generate', '--options', '[1,2,3]', 'a cat']);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('valid JSON object'));
+    expect(process.exitCode).toBe(1);
+  });
 });

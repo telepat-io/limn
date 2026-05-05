@@ -8,6 +8,7 @@ import {
   getGenerationInputMode,
   ASPECT_RATIO_DIMENSIONS,
   DEFINITIONS_BY_MODEL_ID,
+  validateUserOption,
   type ModelDefinition,
 } from '../models/registry.js';
 import type { ModelId } from '../types.js';
@@ -19,6 +20,7 @@ export interface ImageGenerationOptions {
   replicateModelOverride?: string;
   aspectRatio?: string;
   config?: GlobalConfig;
+  options?: Record<string, unknown>;
 }
 
 export interface ImageGenerationResult {
@@ -55,14 +57,16 @@ function inferMimeAndExt(url: string, defaultExt: string = 'jpg'): { mimeType: s
   return { mimeType: EXT_TO_MIME[defaultExt] ?? 'image/jpeg', extension: defaultExt };
 }
 
-function buildGenerationInput(
+export function buildGenerationInput(
   definition: ModelDefinition | undefined,
   prompt: string,
   negativePrompt: string | undefined,
   aspectRatio: string,
+  configDefaults?: Record<string, unknown>,
+  userOptions?: Record<string, unknown>,
 ): Record<string, unknown> {
   if (!definition) {
-    return { prompt, aspect_ratio: aspectRatio };
+    return { prompt, aspect_ratio: aspectRatio, ...userOptions };
   }
 
   const mode = getGenerationInputMode(definition);
@@ -87,7 +91,43 @@ function buildGenerationInput(
     input['negative_prompt'] = negativePrompt;
   }
 
-  return input;
+  // Apply schema defaults for user-configurable fields
+  for (const key of definition.inputOptions.userConfigurable) {
+    const field = definition.inputOptions.fields[key];
+    if (field && field.default !== undefined && !(key in input)) {
+      input[key] = field.default;
+    }
+  }
+
+  // Merge config defaults (deep merge: top-level keys)
+  const mergedOptions: Record<string, unknown> = { ...input };
+  if (configDefaults) {
+    for (const [key, value] of Object.entries(configDefaults)) {
+      const result = validateUserOption(definition, key, value);
+      if (result.valid) {
+        mergedOptions[key] = result.coerced;
+      }
+      // Silently skip invalid config defaults to avoid crashing on startup
+    }
+  }
+
+  // Merge runtime user options (CLI/API overrides)
+  if (userOptions) {
+    const errors: string[] = [];
+    for (const [key, value] of Object.entries(userOptions)) {
+      const result = validateUserOption(definition, key, value);
+      if (result.valid) {
+        mergedOptions[key] = result.coerced;
+      } else {
+        errors.push(result.error!.reason);
+      }
+    }
+    if (errors.length > 0) {
+      throw new Error(`Invalid generation options:\n${errors.join('\n')}`);
+    }
+  }
+
+  return mergedOptions;
 }
 
 async function downloadOutputToBuffer(output: unknown): Promise<{ buffer: Buffer; url: string }> {
@@ -136,7 +176,8 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Im
   const definition = DEFINITIONS_BY_MODEL_ID[modelSlug];
   const aspectRatio = options.aspectRatio ?? '1:1';
 
-  const input = buildGenerationInput(definition, options.prompt, options.negativePrompt, aspectRatio);
+  const configDefaults = config.modelOptions?.[options.family];
+  const input = buildGenerationInput(definition, options.prompt, options.negativePrompt, aspectRatio, configDefaults, options.options);
 
   const replicate = new Replicate({ auth: replicateApiKey });
 
