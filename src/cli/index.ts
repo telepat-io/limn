@@ -15,10 +15,15 @@ export async function runCli(args: string[]): Promise<number> {
 
   program
     .argument('<prompt>', 'Natural language prompt to transform')
-    .requiredOption('-m, --model <model>', `Target T2I model. One of: ${VALID_MODELS.join(', ')}`)
+    .option('-m, --model <model>', `Target T2I model. One of: ${VALID_MODELS.join(', ')}`)
     .option('--json', 'Output as JSON')
     .action(async (prompt, options) => {
       const model = options.model;
+      if (!model) {
+        console.error(`error: required option '-m, --model <model>' not specified`);
+        process.exitCode = 1;
+        return;
+      }
       if (!VALID_MODELS.includes(model as ModelId)) {
         console.error(`Invalid model: ${model}. Must be one of: ${VALID_MODELS.join(', ')}`);
         process.exitCode = 1;
