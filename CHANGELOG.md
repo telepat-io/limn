@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/telepat-io/limn/compare/limn-v0.1.3...limn-v0.1.4) (2026-05-05)
+
+
+### Features
+
+* add getSupportedModelCatalog API and update README with usage instructions ([3a90443](https://github.com/telepat-io/limn/commit/3a9044374238981cdd87954f35e8959ff2a1fcbe))
+
 ## [0.1.3](https://github.com/telepat-io/limn/compare/limn-v0.1.2...limn-v0.1.3) (2026-05-05)
 
 
