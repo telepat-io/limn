@@ -19,7 +19,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsx src/cli/index.ts",
+    "dev": "tsx src/bin.ts",
     "lint": "eslint src tests --ext .ts",
     "typecheck": "tsc --noEmit",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
