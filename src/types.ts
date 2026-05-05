@@ -32,6 +32,44 @@ export interface TransformedResult {
 export interface GlobalConfig {
   openrouterApiKey?: string;
   openrouterModel?: string;
+  replicateApiKey?: string;
+}
+
+export interface OpenRouterUsage {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  costUsd: number | null;
+  generationId: string | null;
+}
+
+export interface OpenRouterFullResult {
+  text: string;
+  usage: OpenRouterUsage;
+  durationMs: number;
+}
+
+export interface GenerationAnalytics {
+  totalDurationMs: number;
+  openrouterDurationMs: number;
+  replicateDurationMs: number;
+  openrouterUsage: OpenRouterUsage | null;
+  openrouterCostUsd: number | null;
+  openrouterGenerationId: string | null;
+  replicatePredictionId: string;
+  replicateEstimatedCostUsd: number | null;
+  totalEstimatedCostUsd: number | null;
+  costSource: 'actual+estimate' | 'estimate-only' | 'unknown';
+}
+
+export interface LimnGenerateResult {
+  image: Buffer;
+  filename: string;
+  savedPath: string;
+  mimeType: string;
+  modelSlug: string;
+  promptUsed: string;
+  analytics: GenerationAnalytics;
 }
 
 export const VALID_MODELS = [

@@ -44,10 +44,12 @@
   },
   "homepage": "https://github.com/telepat-io/limn",
   "dependencies": {
+    "@telepat/ansie": "file:../ansie",
     "commander": "^14.0.1",
     "env-paths": "^3.0.0",
     "keytar": "^7.9.0",
     "openai": "^5.0.0",
+    "replicate": "^1.4.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {

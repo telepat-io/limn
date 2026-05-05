@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import type { GlobalConfig } from '../types.js';
+import type { GlobalConfig, OpenRouterFullResult } from '../types.js';
 import { readGlobalConfig } from './config.js';
 
 let client: OpenAI | null = null;
@@ -36,16 +36,12 @@ export function setCallOpenRouter(fn: CallOpenRouterFn | null): void {
   _callOpenRouter = fn;
 }
 
-export async function callOpenRouter(
+export async function callOpenRouterFull(
   systemPrompt: string,
   userPrompt: string,
   model?: string,
   config?: GlobalConfig,
-): Promise<string> {
-  if (_callOpenRouter) {
-    return _callOpenRouter(systemPrompt, userPrompt, model, config);
-  }
-
+): Promise<OpenRouterFullResult> {
   const resolvedConfig = config ?? await readGlobalConfig();
   if (!resolvedConfig.openrouterApiKey) {
     throw new Error(
@@ -56,6 +52,7 @@ export async function callOpenRouter(
   }
 
   const openai = getClient(resolvedConfig.openrouterApiKey);
+  const startMs = Date.now();
   const response = await openai.chat.completions.create({
     model: model ?? resolvedConfig.openrouterModel ?? 'deepseek/deepseek-v4-pro',
     messages: [
@@ -64,5 +61,39 @@ export async function callOpenRouter(
     ],
     temperature: 0.7,
   });
-  return response.choices[0]?.message?.content?.trim() ?? '';
+  const durationMs = Date.now() - startMs;
+
+  const text = response.choices[0]?.message?.content?.trim() ?? '';
+  const usage = response.usage;
+
+  // OpenRouter may include cost in usage (non-standard extension)
+  const usageAny = usage as Record<string, unknown> | undefined;
+  const costRaw = usageAny?.['cost'];
+  const costUsd = typeof costRaw === 'number' ? costRaw : null;
+
+  return {
+    text,
+    usage: {
+      promptTokens: usage?.prompt_tokens ?? 0,
+      completionTokens: usage?.completion_tokens ?? 0,
+      totalTokens: usage?.total_tokens ?? 0,
+      costUsd,
+      generationId: response.id ?? null,
+    },
+    durationMs,
+  };
+}
+
+export async function callOpenRouter(
+  systemPrompt: string,
+  userPrompt: string,
+  model?: string,
+  config?: GlobalConfig,
+): Promise<string> {
+  if (_callOpenRouter) {
+    return _callOpenRouter(systemPrompt, userPrompt, model, config);
+  }
+
+  const result = await callOpenRouterFull(systemPrompt, userPrompt, model, config);
+  return result.text;
 }

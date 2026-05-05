@@ -14,7 +14,7 @@ export function settingsCommand(): Command {
     .action(async (key: string, value: string) => {
       try {
         if (!isValidSettingKey(key)) {
-          console.error(`Unknown setting key: ${key}. Valid keys: openrouterApiKey, openrouterModel`);
+          console.error(`Unknown setting key: ${key}. Valid keys: openrouterApiKey, openrouterModel, replicateApiKey`);
           process.exit(1);
         }
         await setGlobalSetting(key, value);
@@ -30,7 +30,7 @@ export function settingsCommand(): Command {
     .action(async (key: string) => {
       try {
         if (!isValidSettingKey(key)) {
-          console.error(`Unknown setting key: ${key}. Valid keys: openrouterApiKey, openrouterModel`);
+          console.error(`Unknown setting key: ${key}. Valid keys: openrouterApiKey, openrouterModel, replicateApiKey`);
           process.exit(1);
         }
         const config = await readGlobalConfig();
@@ -51,6 +51,7 @@ export function settingsCommand(): Command {
         console.log(JSON.stringify({
           openrouterApiKey: redactValue('openrouterApiKey', config.openrouterApiKey),
           openrouterModel: config.openrouterModel ?? 'not set',
+          replicateApiKey: redactValue('replicateApiKey', config.replicateApiKey),
         }, null, 2));
       } catch (error) {
         handleError(error);
@@ -63,7 +64,7 @@ export function settingsCommand(): Command {
     .action(async (key: string) => {
       try {
         if (!isValidSettingKey(key)) {
-          console.error(`Unknown setting key: ${key}. Valid keys: openrouterApiKey, openrouterModel`);
+          console.error(`Unknown setting key: ${key}. Valid keys: openrouterApiKey, openrouterModel, replicateApiKey`);
           process.exit(1);
         }
         await unsetGlobalSetting(key);

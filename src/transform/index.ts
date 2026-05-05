@@ -1,6 +1,6 @@
 import { profiles } from '../profiles/index.js';
 import { callOpenRouter } from '../core/openrouter.js';
-import type { ModelId, TransformedResult } from '../types.js';
+import type { ModelId, TransformedResult, GlobalConfig } from '../types.js';
 
 function buildSystemPrompt(modelId: ModelId): string {
   const profile = profiles[modelId];
@@ -11,12 +11,13 @@ function buildSystemPrompt(modelId: ModelId): string {
 export async function transform(
   userPrompt: string,
   modelId: ModelId,
+  config?: GlobalConfig,
 ): Promise<TransformedResult> {
   const profile = profiles[modelId];
   if (!profile) throw new Error(`Unknown model: ${modelId}`);
 
   const systemPrompt = buildSystemPrompt(modelId);
-  const rawOutput = await callOpenRouter(systemPrompt, userPrompt);
+  const rawOutput = await callOpenRouter(systemPrompt, userPrompt, undefined, config);
 
   let prompt = rawOutput;
   let negativePrompt: string | undefined;

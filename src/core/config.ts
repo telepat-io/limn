@@ -33,6 +33,11 @@ export async function readGlobalConfig(): Promise<GlobalConfig> {
   return {
     openrouterApiKey: process.env['OPENROUTER_API_KEY'] ?? secrets.openrouterApiKey ?? undefined,
     openrouterModel: fileConfig.openrouterModel,
+    replicateApiKey:
+      process.env['REPLICATE_API_TOKEN'] ??
+      process.env['REPLICATE_API_KEY'] ??
+      secrets.replicateApiKey ??
+      undefined,
   };
 }
 
@@ -45,17 +50,25 @@ async function writeGlobalConfig(config: GlobalConfig): Promise<void> {
   await fs.writeFile(globalConfigFile, `${JSON.stringify(nonSecret, null, 2)}\n`);
 
   await saveSecrets(
-    { openrouterApiKey: config.openrouterApiKey ?? null },
+    {
+      openrouterApiKey: config.openrouterApiKey ?? null,
+      replicateApiKey: config.replicateApiKey ?? null,
+    },
     { disableKeytar: readDisableKeytarEnv() },
   );
 }
 
-const SECRET_KEYS = new Set(['openrouterApiKey']);
-const ALL_KEYS = new Set(['openrouterApiKey', 'openrouterModel']);
+const SECRET_KEYS = new Set(['openrouterApiKey', 'replicateApiKey']);
+const ALL_KEYS = new Set(['openrouterApiKey', 'openrouterModel', 'replicateApiKey']);
 
 export async function setGlobalSetting(key: string, value: string): Promise<void> {
   if (key === 'openrouterApiKey') {
     await saveSecrets({ openrouterApiKey: value }, { disableKeytar: readDisableKeytarEnv() });
+    return;
+  }
+
+  if (key === 'replicateApiKey') {
+    await saveSecrets({ replicateApiKey: value }, { disableKeytar: readDisableKeytarEnv() });
     return;
   }
 
@@ -71,6 +84,11 @@ export async function setGlobalSetting(key: string, value: string): Promise<void
 export async function unsetGlobalSetting(key: string): Promise<void> {
   if (key === 'openrouterApiKey') {
     await saveSecrets({ openrouterApiKey: null }, { disableKeytar: readDisableKeytarEnv() });
+    return;
+  }
+
+  if (key === 'replicateApiKey') {
+    await saveSecrets({ replicateApiKey: null }, { disableKeytar: readDisableKeytarEnv() });
     return;
   }
 

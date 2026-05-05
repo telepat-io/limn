@@ -6,6 +6,7 @@ describe('config', () => {
     it('should return true for valid keys', () => {
       expect(isValidSettingKey('openrouterApiKey')).toBe(true);
       expect(isValidSettingKey('openrouterModel')).toBe(true);
+      expect(isValidSettingKey('replicateApiKey')).toBe(true);
     });
 
     it('should return false for invalid keys', () => {

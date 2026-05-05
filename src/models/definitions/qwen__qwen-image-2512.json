@@ -1,0 +1,68 @@
+{
+  "modelId": "qwen/qwen-image-2512",
+  "provider": "replicate",
+  "displayName": "Qwen Image 2512",
+  "category": "image-generation",
+  "pricingSourceUrl": "https://replicate.com/qwen/qwen-image-2512",
+  "pricingNotes": "Replicate pricing: $0.025 per output image (high-step quality variant).",
+  "pricing": {
+    "usdPerSecond": null,
+    "usdPer1kInputTokens": null,
+    "usdPer1kOutputTokens": null
+  },
+  "pricingRules": {
+    "basis": "output_image_count",
+    "usdPerImage": 0.025
+  },
+  "inputOptions": {
+    "userConfigurable": ["image_size", "output_format", "output_quality", "guidance", "num_inference_steps", "enhance_prompt", "disable_safety_checker"],
+    "pipelineManaged": ["prompt", "aspect_ratio"],
+    "fields": {
+      "image_size": {
+        "type": "string",
+        "default": "optimize_for_quality",
+        "enum": ["optimize_for_quality", "512", "768", "1024", "1280", "2048"]
+      },
+      "output_format": {
+        "type": "string",
+        "default": "webp",
+        "enum": ["webp", "jpg", "png"]
+      },
+      "output_quality": {
+        "type": "integer",
+        "default": 80,
+        "minimum": 0,
+        "maximum": 100
+      },
+      "guidance": {
+        "type": "number",
+        "default": 3,
+        "minimum": 0,
+        "maximum": 10
+      },
+      "num_inference_steps": {
+        "type": "integer",
+        "default": 50,
+        "minimum": 1,
+        "maximum": 100
+      },
+      "enhance_prompt": {
+        "type": "boolean",
+        "default": false
+      },
+      "disable_safety_checker": {
+        "type": "boolean",
+        "default": false
+      },
+      "prompt": {
+        "type": "string",
+        "required": true
+      },
+      "aspect_ratio": {
+        "type": "string",
+        "required": true,
+        "enum": ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"]
+      }
+    }
+  }
+}

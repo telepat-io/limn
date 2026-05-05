@@ -1,0 +1,91 @@
+{
+  "modelId": "stability-ai/sdxl",
+  "provider": "replicate",
+  "displayName": "Stable Diffusion XL",
+  "category": "image-generation",
+  "pricingSourceUrl": "https://replicate.com/stability-ai/sdxl",
+  "pricingNotes": "Replicate pricing: approximately $0.0019 per run on Nvidia L40S (~2s generation time).",
+  "pricing": {
+    "usdPerSecond": null,
+    "usdPer1kInputTokens": null,
+    "usdPer1kOutputTokens": null
+  },
+  "pricingRules": {
+    "basis": "approximate_per_run",
+    "usdPerImage": 0.0019
+  },
+  "inputOptions": {
+    "userConfigurable": ["num_outputs", "num_inference_steps", "guidance_scale", "scheduler", "seed", "refine", "high_noise_frac", "apply_watermark", "disable_safety_checker"],
+    "pipelineManaged": ["prompt", "negative_prompt", "width", "height"],
+    "fields": {
+      "num_outputs": {
+        "type": "integer",
+        "default": 1,
+        "minimum": 1,
+        "maximum": 4
+      },
+      "num_inference_steps": {
+        "type": "integer",
+        "default": 50,
+        "minimum": 1,
+        "maximum": 500
+      },
+      "guidance_scale": {
+        "type": "number",
+        "default": 7.5,
+        "minimum": 1,
+        "maximum": 50
+      },
+      "scheduler": {
+        "type": "string",
+        "default": "K_EULER",
+        "enum": ["DDIM", "DPMSolverMultistep", "HeunDiscrete", "KarrasDPM", "K_EULER_ANCESTRAL", "K_EULER", "PNDM"]
+      },
+      "seed": {
+        "type": "integer",
+        "nullable": true
+      },
+      "refine": {
+        "type": "string",
+        "default": "no_refiner",
+        "enum": ["no_refiner", "expert_ensemble_refiner", "base_image_refiner"]
+      },
+      "high_noise_frac": {
+        "type": "number",
+        "default": 0.8,
+        "minimum": 0,
+        "maximum": 1
+      },
+      "apply_watermark": {
+        "type": "boolean",
+        "default": true
+      },
+      "disable_safety_checker": {
+        "type": "boolean",
+        "default": false
+      },
+      "prompt": {
+        "type": "string",
+        "required": true
+      },
+      "negative_prompt": {
+        "type": "string",
+        "default": ""
+      },
+      "width": {
+        "type": "integer",
+        "required": true,
+        "default": 1024,
+        "minimum": 512,
+        "maximum": 2048
+      },
+      "height": {
+        "type": "integer",
+        "required": true,
+        "default": 1024,
+        "minimum": 512,
+        "maximum": 2048
+      }
+    }
+  }
+}

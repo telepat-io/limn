@@ -1,0 +1,44 @@
+{
+  "modelId": "qwen/qwen-image-2-pro",
+  "provider": "replicate",
+  "displayName": "Qwen Image 2 Pro",
+  "category": "image-generation",
+  "pricingSourceUrl": "https://replicate.com/qwen/qwen-image-2-pro",
+  "pricingNotes": "Replicate pricing: approximately $0.05 per output image (premium quality tier).",
+  "pricing": {
+    "usdPerSecond": null,
+    "usdPer1kInputTokens": null,
+    "usdPer1kOutputTokens": null
+  },
+  "pricingRules": {
+    "basis": "approximate_per_run",
+    "usdPerImage": 0.05
+  },
+  "inputOptions": {
+    "userConfigurable": ["enable_prompt_expansion", "seed", "negative_prompt"],
+    "pipelineManaged": ["prompt", "aspect_ratio"],
+    "fields": {
+      "enable_prompt_expansion": {
+        "type": "boolean",
+        "default": true
+      },
+      "seed": {
+        "type": "integer",
+        "nullable": true
+      },
+      "negative_prompt": {
+        "type": "string",
+        "default": ""
+      },
+      "prompt": {
+        "type": "string",
+        "required": true
+      },
+      "aspect_ratio": {
+        "type": "string",
+        "required": true,
+        "enum": ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "2:1", "1:2"]
+      }
+    }
+  }
+}

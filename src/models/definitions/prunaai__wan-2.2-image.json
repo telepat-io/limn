@@ -1,0 +1,55 @@
+{
+  "modelId": "prunaai/wan-2.2-image",
+  "provider": "replicate",
+  "displayName": "Wan 2.2 Image",
+  "category": "image-generation",
+  "pricingSourceUrl": "https://replicate.com/prunaai/wan-2.2-image",
+  "pricingNotes": "Replicate pricing: $0.02 per output image.",
+  "pricing": {
+    "usdPerSecond": null,
+    "usdPer1kInputTokens": null,
+    "usdPer1kOutputTokens": null
+  },
+  "pricingRules": {
+    "basis": "output_image_count",
+    "usdPerImage": 0.02
+  },
+  "inputOptions": {
+    "userConfigurable": ["juiced", "megapixels", "seed", "output_format", "output_quality"],
+    "pipelineManaged": ["prompt", "aspect_ratio"],
+    "fields": {
+      "juiced": {
+        "type": "boolean",
+        "default": false
+      },
+      "megapixels": {
+        "type": "integer",
+        "default": 2
+      },
+      "seed": {
+        "type": "integer",
+        "nullable": true
+      },
+      "output_format": {
+        "type": "string",
+        "default": "jpg",
+        "enum": ["jpg", "png", "webp"]
+      },
+      "output_quality": {
+        "type": "integer",
+        "default": 80,
+        "minimum": 1,
+        "maximum": 100
+      },
+      "prompt": {
+        "type": "string",
+        "required": true
+      },
+      "aspect_ratio": {
+        "type": "string",
+        "required": true,
+        "enum": ["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "21:9"]
+      }
+    }
+  }
+}

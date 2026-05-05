@@ -18,7 +18,7 @@ describe('secretStore', () => {
     it('should return null secrets by default with disableKeytar', async () => {
       const { loadSecrets } = await import('../src/core/secretStore.js');
       const secrets = await loadSecrets({ disableKeytar: true });
-      expect(secrets).toEqual({ openrouterApiKey: null });
+      expect(secrets).toEqual({ openrouterApiKey: null, replicateApiKey: null });
     });
   });
 

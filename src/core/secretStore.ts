@@ -1,5 +1,6 @@
 const SERVICE_NAME = 'limn';
 const OPENROUTER_ACCOUNT = 'openrouter-api-key';
+const REPLICATE_ACCOUNT = 'replicate-api-key';
 
 const KEYTAR_UNAVAILABLE_ERROR_NAME = 'KeytarUnavailableError';
 
@@ -18,6 +19,7 @@ export interface SecretStoreOptions {
 
 export interface SecretSettings {
   openrouterApiKey: string | null;
+  replicateApiKey: string | null;
 }
 
 export class KeytarUnavailableError extends Error {
@@ -28,7 +30,7 @@ export class KeytarUnavailableError extends Error {
 }
 
 function nullSecrets(): SecretSettings {
-  return { openrouterApiKey: null };
+  return { openrouterApiKey: null, replicateApiKey: null };
 }
 
 function shouldDisableKeytar(options: SecretStoreOptions): boolean {
@@ -112,8 +114,11 @@ export async function loadSecrets(options: SecretStoreOptions = {}): Promise<Sec
   }
 
   try {
-    const openrouterApiKey = await keytar.getPassword(SERVICE_NAME, OPENROUTER_ACCOUNT);
-    return { openrouterApiKey };
+    const [openrouterApiKey, replicateApiKey] = await Promise.all([
+      keytar.getPassword(SERVICE_NAME, OPENROUTER_ACCOUNT),
+      keytar.getPassword(SERVICE_NAME, REPLICATE_ACCOUNT),
+    ]);
+    return { openrouterApiKey, replicateApiKey };
   } catch (error) {
     if (isKeytarAvailabilityError(error)) {
       const message = error instanceof Error ? error.message : 'unknown error';
@@ -141,6 +146,10 @@ export async function saveSecrets(secrets: Partial<SecretSettings>, options: Sec
 
   if (secrets.openrouterApiKey !== undefined) {
     await saveSecretValue(keytar, OPENROUTER_ACCOUNT, secrets.openrouterApiKey);
+  }
+
+  if (secrets.replicateApiKey !== undefined) {
+    await saveSecretValue(keytar, REPLICATE_ACCOUNT, secrets.replicateApiKey);
   }
 }
 
