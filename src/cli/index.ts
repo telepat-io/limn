@@ -1,9 +1,125 @@
 import { Command } from 'commander';
 import { limn, limnGenerate } from '../index.js';
+import { profiles } from '../profiles/index.js';
 import { VALID_MODELS } from '../types.js';
 import type { ModelId, GenerationAnalytics } from '../types.js';
 import { settingsCommand } from './settings.js';
 import { renderBestForTerminal, detectTerminalCapabilities } from '@telepat/ansie';
+import { readGlobalConfig } from '../core/config.js';
+import { callOpenRouterFull } from '../core/openrouter.js';
+import { generateImage } from '../core/imageGeneration.js';
+import { buildAnalytics } from '../core/costs.js';
+import { resolveReplicateModelId } from '../models/registry.js';
+
+// ── Color support ─────────────────────────────────────────────────────────────
+
+function detectColorSupport(): boolean {
+  if (process.env['NO_COLOR'] !== undefined) return false;
+  if (process.env['FORCE_COLOR'] !== undefined && process.env['FORCE_COLOR'] !== '0') return true;
+  if (process.env['TERM'] === 'dumb') return false;
+  return Boolean(process.stdout.isTTY);
+}
+
+type Colors = ReturnType<typeof makeColors>;
+
+function makeColors(enabled: boolean) {
+  const wrap = (open: string, close: string) =>
+    enabled ? (s: string) => `\x1b[${open}m${s}\x1b[${close}m` : (s: string) => s;
+  return {
+    dim:    wrap('2', '22'),
+    bold:   wrap('1', '22'),
+    cyan:   wrap('36', '39'),
+    green:  wrap('32', '39'),
+    yellow: wrap('33', '39'),
+    red:    wrap('31', '39'),
+  };
+}
+
+// strip ANSI escape codes to get visual (printable) length
+function visLen(s: string): number {
+  // eslint-disable-next-line no-control-regex
+  return s.replace(/\x1b\[[0-9;]*m/g, '').length;
+}
+
+// ── Spinner ───────────────────────────────────────────────────────────────────
+
+const SPINNER_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+
+class CliSpinner {
+  private readonly animated: boolean;
+  private readonly c: Colors;
+  private timer: NodeJS.Timeout | null = null;
+  private frameIndex = 0;
+  private lastLen = 0;
+
+  constructor(animated: boolean, c: Colors) {
+    this.animated = animated;
+    this.c = c;
+  }
+
+  start(text: string): void {
+    if (this.animated) {
+      this.writeInline(`${this.c.cyan(SPINNER_FRAMES[0] ?? '…')} ${text}`);
+      this.timer = setInterval(() => {
+        this.frameIndex = (this.frameIndex + 1) % SPINNER_FRAMES.length;
+        this.writeInline(`${this.c.cyan(SPINNER_FRAMES[this.frameIndex] ?? '…')} ${text}`);
+      }, 90);
+    } else {
+      console.log(`  ${text}…`);
+    }
+  }
+
+  succeed(text: string): void {
+    this.stop();
+    if (this.animated) {
+      this.writeLine(`${this.c.green('[ok]')} ${text}`);
+    } else {
+      console.log(`  [ok] ${text}`);
+    }
+  }
+
+  fail(text: string): void {
+    this.stop();
+    if (this.animated) {
+      this.writeLine(`${this.c.red('[x]')} ${text}`);
+    } else {
+      console.error(`  [x] ${text}`);
+    }
+  }
+
+  private stop(): void {
+    if (this.timer) {
+      clearInterval(this.timer);
+      this.timer = null;
+    }
+  }
+
+  private writeInline(line: string): void {
+    const vl = visLen(line);
+    const pad = vl < this.lastLen ? ' '.repeat(this.lastLen - vl) : '';
+    this.lastLen = vl;
+    process.stdout.write(`\r${line}${pad}`);
+  }
+
+  private writeLine(line: string): void {
+    const vl = visLen(line);
+    const pad = vl < this.lastLen ? ' '.repeat(this.lastLen - vl) : '';
+    this.lastLen = 0;
+    process.stdout.write(`\r${line}${pad}\n`);
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function splitNegativePrompt(text: string, supportsNegativePrompt: boolean): { prompt: string; negativePrompt?: string } {
+  if (!supportsNegativePrompt) return { prompt: text.trim() };
+  const negMatch = text.match(/negative_prompt:\s*(.+)/is);
+  if (!negMatch) return { prompt: text.trim() };
+  return {
+    prompt: text.replace(/negative_prompt:\s*.+/is, '').trim(),
+    negativePrompt: negMatch[1].trim(),
+  };
+}
 
 function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`;
@@ -16,25 +132,32 @@ function formatCost(usd: number | null): string {
   return `$${usd.toFixed(4)}`;
 }
 
-function printAnalytics(analytics: GenerationAnalytics): void {
+function printAnalytics(analytics: GenerationAnalytics, c: Colors): void {
+  const rule = c.dim('─'.repeat(52));
+  const lbl = (s: string) => c.dim(s);
+  const val = (s: string) => c.yellow(s);
+
   console.log('');
-  console.log('── Generation Analytics ──────────────────────────────');
-  console.log(`  Total time:        ${formatDuration(analytics.totalDurationMs)}`);
-  console.log(`  Prompt transform:  ${formatDuration(analytics.openrouterDurationMs)}`);
-  console.log(`  Image generation:  ${formatDuration(analytics.replicateDurationMs)}`);
+  console.log(rule);
+  console.log(`  ${lbl('Total time:       ')} ${val(formatDuration(analytics.totalDurationMs))}`);
+  console.log(`  ${lbl('Prompt transform: ')} ${val(formatDuration(analytics.openrouterDurationMs))}`);
+  console.log(`  ${lbl('Image generation: ')} ${val(formatDuration(analytics.replicateDurationMs))}`);
   console.log('');
-  console.log(`  OpenRouter cost:   ${formatCost(analytics.openrouterCostUsd)}${analytics.openrouterUsage ? ` (${analytics.openrouterUsage.totalTokens} tokens)` : ''}`);
-  console.log(`  Replicate cost:    ${formatCost(analytics.replicateEstimatedCostUsd)} (estimated)`);
-  console.log(`  Total est. cost:   ${formatCost(analytics.totalEstimatedCostUsd)}`);
+  const tokenHint = analytics.openrouterUsage ? c.dim(` (${analytics.openrouterUsage.totalTokens} tokens)`) : '';
+  console.log(`  ${lbl('OpenRouter cost:  ')} ${val(formatCost(analytics.openrouterCostUsd))}${tokenHint}`);
+  console.log(`  ${lbl('Replicate cost:   ')} ${val(formatCost(analytics.replicateEstimatedCostUsd))}${c.dim(' (estimated)')}`);
+  console.log(`  ${lbl('Total est. cost:  ')} ${val(formatCost(analytics.totalEstimatedCostUsd))}`);
   if (analytics.costSource !== 'unknown') {
-    console.log(`  Cost source:       ${analytics.costSource}`);
+    console.log(`  ${lbl('Cost source:      ')} ${c.dim(analytics.costSource)}`);
   }
-  console.log(`  Prediction ID:     ${analytics.replicatePredictionId}`);
+  console.log(`  ${lbl('Prediction ID:    ')} ${c.dim(analytics.replicatePredictionId)}`);
   if (analytics.openrouterGenerationId) {
-    console.log(`  OR generation ID:  ${analytics.openrouterGenerationId}`);
+    console.log(`  ${lbl('OR generation ID: ')} ${c.dim(analytics.openrouterGenerationId)}`);
   }
-  console.log('──────────────────────────────────────────────────────');
+  console.log(rule);
 }
+
+// ── CLI ───────────────────────────────────────────────────────────────────────
 
 export async function runCli(args: string[]): Promise<number> {
   const program = new Command();
@@ -67,12 +190,13 @@ export async function runCli(args: string[]): Promise<number> {
 
       if (options.generate) {
         try {
-          const result = await limnGenerate(prompt, model as ModelId, {
-            replicateModel: options.replicateModel,
-            aspectRatio: options.aspectRatio,
-          });
+          const modelId = model as ModelId;
 
           if (options.json) {
+            const result = await limnGenerate(prompt, modelId, {
+              replicateModel: options.replicateModel,
+              aspectRatio: options.aspectRatio,
+            });
             console.log(JSON.stringify({
               model: result.modelSlug,
               prompt: result.promptUsed,
@@ -81,26 +205,82 @@ export async function runCli(args: string[]): Promise<number> {
               mimeType: result.mimeType,
               analytics: result.analytics,
             }));
-          } else {
-            console.log(`Transformed prompt: ${result.promptUsed}`);
-            console.log(`\nImage saved: ${result.savedPath}`);
-            console.log(`Model used:  ${result.modelSlug}`);
+            return;
+          }
 
-            printAnalytics(result.analytics);
+          const profile = profiles[modelId];
+          if (!profile) throw new Error(`Unknown model: ${modelId}`);
 
-            // Render image in terminal if TTY supports it
-            const capabilities = detectTerminalCapabilities();
-            if (capabilities.isTTY && capabilities.ansi) {
-              try {
-                console.log('');
-                const renderResult = await renderBestForTerminal(
-                  { buffer: result.image },
-                  { width: capabilities.columns ? capabilities.columns - 2 : 80 },
-                );
-                console.log(renderResult.content);
-              } catch {
-                // Non-fatal: skip render if it fails
-              }
+          const c = makeColors(detectColorSupport());
+          const isTTY = Boolean(process.stdout.isTTY);
+          const spinner = new CliSpinner(isTTY, c);
+
+          const config = await readGlobalConfig();
+          const openrouterModel = config.openrouterModel ?? 'deepseek/deepseek-v4-pro';
+          const replicateModelSlug = resolveReplicateModelId(modelId, options.replicateModel);
+          const totalStartMs = Date.now();
+
+          console.log(`${c.dim('OpenRouter model:')} ${c.cyan(openrouterModel)}`);
+          console.log(`${c.dim('Replicate model: ')} ${c.cyan(replicateModelSlug)}`);
+          console.log('');
+
+          spinner.start(`Transforming prompt  (${openrouterModel})`);
+          const orResult = await callOpenRouterFull(profile.systemPrompt, prompt, undefined, config);
+          spinner.succeed(`Prompt transformed   (${c.dim(openrouterModel)})`);
+
+          const transformed = splitNegativePrompt(orResult.text, profile.supportsNegativePrompt);
+
+          console.log('');
+          console.log(c.dim('Transformed prompt:'));
+          console.log(transformed.prompt);
+          if (transformed.negativePrompt) {
+            console.log('');
+            console.log(`${c.dim('negative_prompt:')} ${transformed.negativePrompt}`);
+          }
+          console.log(''); // spacing under the prompt
+
+          spinner.start(`Generating image     (${replicateModelSlug})`);
+          const imageResult = await generateImage({
+            family: modelId,
+            prompt: transformed.prompt,
+            negativePrompt: transformed.negativePrompt,
+            replicateModelOverride: options.replicateModel,
+            aspectRatio: options.aspectRatio,
+            config,
+          });
+          spinner.succeed(`Image generated      (${c.dim(imageResult.modelSlug)})`);
+
+          const analytics = buildAnalytics(
+            totalStartMs,
+            orResult.durationMs,
+            orResult.usage,
+            {
+              predictionId: imageResult.replicatePredictionId,
+              metrics: { predict_time: imageResult.replicateDurationMs / 1000 },
+              definition: imageResult.definition,
+              input: imageResult.inputSentToModel,
+            },
+          );
+
+          console.log('');
+          console.log(`${c.dim('Image saved:')} ${c.cyan(imageResult.savedPath)}`);
+          console.log(`${c.dim('Model used: ')} ${c.cyan(imageResult.modelSlug)}`);
+
+          printAnalytics(analytics, c);
+
+          const capabilities = detectTerminalCapabilities();
+          if (capabilities.isTTY && capabilities.ansi) {
+            spinner.start('Rendering image in terminal');
+            try {
+              const renderResult = await renderBestForTerminal(
+                { buffer: imageResult.buffer },
+                { width: capabilities.columns ? capabilities.columns - 2 : 80 },
+              );
+              spinner.succeed('Rendered image in terminal');
+              console.log('');
+              console.log(renderResult.content);
+            } catch {
+              spinner.fail('Could not render image in terminal (skipped)');
             }
           }
         } catch (err) {
@@ -139,3 +319,4 @@ export async function runCli(args: string[]): Promise<number> {
     return 1;
   }
 }
+
