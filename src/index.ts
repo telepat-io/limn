@@ -4,6 +4,7 @@ import { callOpenRouterFull } from './core/openrouter.js';
 import { generateImage } from './core/imageGeneration.js';
 import { buildAnalytics } from './core/costs.js';
 import { readGlobalConfig } from './core/config.js';
+import { getSupportedModelCatalog } from './models/registry.js';
 import type { ModelId, TransformedResult, LimnGenerateResult, GlobalConfig } from './types.js';
 
 export async function limn(
@@ -127,6 +128,7 @@ export async function limnGenerate(
 }
 
 export { profiles } from './profiles/index.js';
+export { getSupportedModelCatalog };
 export type {
   ModelId,
   ModelProfile,
@@ -135,5 +137,6 @@ export type {
   LimnGenerateResult,
   GenerationAnalytics,
   OpenRouterUsage,
+  SupportedModelCatalogEntry,
 } from './types.js';
 export { VALID_MODELS } from './types.js';

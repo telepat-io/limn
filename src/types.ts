@@ -72,6 +72,14 @@ export interface LimnGenerateResult {
   analytics: GenerationAnalytics;
 }
 
+export interface SupportedModelCatalogEntry {
+  family: ModelId;
+  displayName: string;
+  generationEnabled: boolean;
+  replicateModelIds: string[];
+  defaultReplicateModelId: string | null;
+}
+
 export const VALID_MODELS = [
   'flux',
   'sdxl',

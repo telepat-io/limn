@@ -11,6 +11,12 @@ Limn encodes this knowledge into per-model system prompts and uses an LLM (via O
 npm install -g @telepat/limn
 ```
 
+For library usage in a project:
+
+```bash
+npm install @telepat/limn
+```
+
 Requires Node >=20.
 
 Check your Node version:
@@ -287,14 +293,39 @@ interface GenerationAnalytics {
 }
 ```
 
+### Supported model catalog API
+
+```ts
+import {
+  getSupportedModelCatalog,
+  type SupportedModelCatalogEntry,
+} from '@telepat/limn';
+
+const catalog = getSupportedModelCatalog();
+// [
+//   {
+//     family: 'flux',
+//     displayName: 'FLUX',
+//     generationEnabled: true,
+//     replicateModelIds: ['black-forest-labs/flux-schnell', 'black-forest-labs/flux-2-pro'],
+//     defaultReplicateModelId: 'black-forest-labs/flux-schnell'
+//   },
+//   ...
+// ]
+```
+
+Use this API when you need to drive downstream model selectors or runtime validation from Limn's canonical model metadata.
+
 ### Additional exports
 
 ```ts
 import {
   profiles,
   VALID_MODELS,
+  getSupportedModelCatalog,
   type ModelId,
   type ModelProfile,
+  type SupportedModelCatalogEntry,
   type TransformedResult,
   type OutputFormat,
   type LimnGenerateResult,

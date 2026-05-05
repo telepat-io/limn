@@ -1,5 +1,5 @@
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
-import { limn } from '../src/index.js';
+import { limn, getSupportedModelCatalog } from '../src/index.js';
 import { profiles } from '../src/profiles/index.js';
 import { VALID_MODELS, type ModelId } from '../src/types.js';
 import { setCallOpenRouter, type CallOpenRouterFn } from '../src/core/openrouter.js';
@@ -60,5 +60,12 @@ describe('limn library API', () => {
       expect(profiles[modelId as ModelId]).toBeDefined();
       expect(profiles[modelId as ModelId].id).toBe(modelId);
     }
+  });
+
+  it('should export supported model catalog', () => {
+    const catalog = getSupportedModelCatalog();
+    expect(Array.isArray(catalog)).toBe(true);
+    expect(catalog.length).toBeGreaterThan(0);
+    expect(catalog.some((entry) => entry.family === 'flux')).toBe(true);
   });
 });

@@ -1,4 +1,5 @@
-import type { ModelId } from '../types.js';
+import type { ModelId, SupportedModelCatalogEntry } from '../types.js';
+import { profiles } from '../profiles/index.js';
 
 export interface ModelDefinition {
   modelId: string;
@@ -159,6 +160,19 @@ export const FAMILY_REGISTRY: Record<ModelId, FamilyEntry> = {
     generationEnabled: true,
   },
 };
+
+export function getSupportedModelCatalog(): SupportedModelCatalogEntry[] {
+  return (Object.keys(FAMILY_REGISTRY) as ModelId[]).map((family) => {
+    const entry = FAMILY_REGISTRY[family];
+    return {
+      family,
+      displayName: profiles[family].name,
+      generationEnabled: entry.generationEnabled,
+      replicateModelIds: [...entry.replicateModelIds],
+      defaultReplicateModelId: entry.defaultReplicateModelId,
+    };
+  });
+}
 
 /**
  * Resolve the Replicate model ID to use for generation.

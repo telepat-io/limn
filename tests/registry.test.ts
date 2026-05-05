@@ -5,6 +5,7 @@ import {
   FAMILY_REGISTRY,
   DEFINITIONS_BY_MODEL_ID,
   ASPECT_RATIO_DIMENSIONS,
+  getSupportedModelCatalog,
 } from '../src/models/registry.js';
 import type { ModelDefinition } from '../src/models/registry.js';
 
@@ -90,5 +91,31 @@ describe('ASPECT_RATIO_DIMENSIONS', () => {
     expect(ASPECT_RATIO_DIMENSIONS['1:1']).toEqual({ width: 1024, height: 1024 });
     expect(ASPECT_RATIO_DIMENSIONS['16:9']).toBeDefined();
     expect(ASPECT_RATIO_DIMENSIONS['9:16']).toBeDefined();
+  });
+});
+
+describe('getSupportedModelCatalog', () => {
+  it('returns a catalog entry for each family', () => {
+    const catalog = getSupportedModelCatalog();
+    expect(catalog).toHaveLength(Object.keys(FAMILY_REGISTRY).length);
+  });
+
+  it('contains required metadata fields', () => {
+    const catalog = getSupportedModelCatalog();
+    for (const entry of catalog) {
+      expect(entry.family).toBeTruthy();
+      expect(entry.displayName).toBeTruthy();
+      expect(typeof entry.generationEnabled).toBe('boolean');
+      expect(Array.isArray(entry.replicateModelIds)).toBe(true);
+      expect('defaultReplicateModelId' in entry).toBe(true);
+    }
+  });
+
+  it('marks chroma as transform-only', () => {
+    const chroma = getSupportedModelCatalog().find((entry) => entry.family === 'chroma');
+    expect(chroma).toBeDefined();
+    expect(chroma?.generationEnabled).toBe(false);
+    expect(chroma?.replicateModelIds).toEqual([]);
+    expect(chroma?.defaultReplicateModelId).toBeNull();
   });
 });
