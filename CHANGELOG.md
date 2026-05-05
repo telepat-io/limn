@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/telepat-io/limn/compare/limn-v0.1.2...limn-v0.1.3) (2026-05-05)
+
+
+### Bug Fixes
+
+* update Node.js version to 24 in release workflow ([0cd56ff](https://github.com/telepat-io/limn/commit/0cd56ffb05ebecde0df9e555f2495ea1ea3ed8bd))
+
 ## [0.1.2](https://github.com/telepat-io/limn/compare/limn-v0.1.1...limn-v0.1.2) (2026-05-05)
 
 
