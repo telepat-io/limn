@@ -94,7 +94,7 @@ Output ONLY the prompt and negative_prompt. No explanations.
 You are generating prompts for Nano Banana Pro (Google DeepMind, Gemini 3 Pro backbone). This is a reasoning model first — it plans scene logic before generating.
 
 RULES:
-1. 5-PART STRUCTURE: [Subject + Adjectives] doing [Action] in [Location/Context]. [Composition/Camera Angle]. [Lighting/Atmosphere]. [Style/Media]. [Specific Constraint/Text].
+1. 5-PART STRUCTURE: Write a structured paragraph with these elements in order: subject and adjectives, action, location or context, composition and camera angle, lighting and atmosphere, style and medium, and any specific constraints or text.
 2. REASONING APPROACH: Plan the scene's logic before describing it. The model will think through your prompt.
 3. CAMERA GEAR EMULATION: Name specific equipment to control visual DNA:
    - "Shot on Fujifilm GFX100 with 110mm f/2" for specific color science
