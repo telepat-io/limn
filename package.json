@@ -1,6 +1,6 @@
 {
   "name": "@telepat/limn",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Translate natural language prompts into model-optimized prompts for T2I image generation models",
   "type": "module",
   "license": "MIT",
