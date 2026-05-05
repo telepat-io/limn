@@ -1,4 +1,7 @@
 import { Command } from 'commander';
+import { existsSync, readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { limn, limnGenerate } from '../index.js';
 import { profiles } from '../profiles/index.js';
 import { VALID_MODELS } from '../types.js';
@@ -10,6 +13,38 @@ import { callOpenRouterFull } from '../core/openrouter.js';
 import { generateImage } from '../core/imageGeneration.js';
 import { buildAnalytics } from '../core/costs.js';
 import { resolveReplicateModelId } from '../models/registry.js';
+
+function resolveCliVersion(): string {
+  const envVersion = process.env['npm_package_version'];
+  if (envVersion) {
+    return envVersion;
+  }
+
+  let dir = dirname(fileURLToPath(import.meta.url));
+  while (true) {
+    const pkgPath = join(dir, 'package.json');
+    if (existsSync(pkgPath)) {
+      try {
+        const parsed = JSON.parse(readFileSync(pkgPath, 'utf-8')) as { version?: unknown };
+        if (typeof parsed.version === 'string' && parsed.version.length > 0) {
+          return parsed.version;
+        }
+      } catch {
+        // Ignore unreadable or invalid package.json files while traversing upward.
+      }
+    }
+
+    const parent = dirname(dir);
+    if (parent === dir) {
+      break;
+    }
+    dir = parent;
+  }
+
+  return '0.0.0';
+}
+
+const CLI_VERSION = resolveCliVersion();
 
 // ── Color support ─────────────────────────────────────────────────────────────
 
@@ -165,7 +200,7 @@ export async function runCli(args: string[]): Promise<number> {
   program
     .name('limn')
     .description('Translate natural language prompts into model-optimized T2I prompts')
-    .version('0.1.0')
+    .version(CLI_VERSION)
     .exitOverride();
 
   program

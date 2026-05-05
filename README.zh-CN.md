@@ -1,42 +1,42 @@
 # Limn
 
-Translate natural language prompts into model-optimized prompts for T2I image generation models, and optionally generate the image.
+将自然语言提示词转换为适配不同 T2I 图像模型的优化提示词，并可选直接生成图片。
 
-Each T2I model has different prompting preferences: tag-based, prose, camera-style, and more.
-Limn encodes this knowledge into per-model system prompts and uses an LLM (via OpenRouter) to rewrite your raw idea into model-optimized form.
+不同 T2I 模型的提示偏好差异很大：有的偏标签、有的偏自然语言、有的偏镜头脚本。Limn 将这些规则编码为按模型划分的 system prompt，并通过 OpenRouter 上的 LLM 把原始想法改写成模型可用的高质量提示词。
 
-## Install
+## 安装
 
 ```bash
 npm install -g @telepat/limn
 ```
 
-Requires Node >=20.
+需要 Node >=20。
 
-Check your Node version:
+检查 Node 版本：
 
 ```bash
 node --version
 ```
 
-## Quick Start
+## 快速开始
 
 ```bash
-# Configure your API keys
+# 配置 API Key
 limn settings set openrouterApiKey sk-or-...
 limn settings set replicateApiKey r8_...
 
-# Transform a prompt for SDXL
+# 为 SDXL 转换提示词
 limn -m sdxl "a cat in space"
 
-# Transform AND generate the image
+# 转换并生成图片
 limn -m flux "a cat in space" --generate
 
-# JSON output
+# JSON 输出
 limn -m flux "a cat in space" --generate --json
 ```
 
-Transform-only output:
+仅转换输出示例：
+
 ```
 masterpiece, best quality, (fluffy orange tabby cat:1.3), floating in
 outer space, cosmic nebula background, (starry sky:1.2), detailed fur
@@ -45,7 +45,8 @@ texture, soft rim lighting, 8k uhd
 negative_prompt: low quality, blurry, distorted, extra limbs, watermark
 ```
 
-Generate output:
+生成输出示例：
+
 ```
 Transformed prompt: a fluffy tabby cat drifting through deep space...
 
@@ -65,9 +66,9 @@ Model used:  black-forest-labs/flux-schnell
 ──────────────────────────────────────────────────────
 ```
 
-If the terminal supports it, the image is rendered inline after generation.
+如果终端支持，生成完成后会尝试在终端内联渲染图片。
 
-JSON output (generate):
+JSON 输出示例（生成）：
 
 ```json
 {
@@ -97,41 +98,41 @@ JSON output (generate):
 }
 ```
 
-## Usage
+## 用法
 
 ```
 limn [options] <prompt>
 
 Options:
-  -m, --model <model>            Target T2I model (required at runtime)
-  --generate                     Generate the image via Replicate after transforming
-  --replicate-model <modelId>    Override the default Replicate model for the selected family
-  --aspect-ratio <ratio>         Aspect ratio for generation (default: 1:1)
-  --json                         Output as JSON instead of plain text
+  -m, --model <model>            目标 T2I 模型（运行时必填）
+  --generate                     转换后通过 Replicate 生成图片
+  --replicate-model <modelId>    覆盖该模型家族默认的 Replicate 模型
+  --aspect-ratio <ratio>         生成时宽高比（默认: 1:1）
+  --json                         输出 JSON
 
 Settings:
-  limn settings set <key> <value>   Set a configuration value
-  limn settings get <key>           Get a configuration value
-  limn settings list                List all configuration values
-  limn settings unset <key>         Remove a configuration value
+  limn settings set <key> <value>   设置配置项
+  limn settings get <key>           获取配置项
+  limn settings list                列出全部配置项
+  limn settings unset <key>         删除配置项
 ```
 
-Valid settings keys:
+可用 settings key：
 
-- `openrouterApiKey` (secret)
+- `openrouterApiKey`（密钥）
 - `openrouterModel`
-- `replicateApiKey` (secret)
+- `replicateApiKey`（密钥）
 
-Notes:
+说明：
 
-- `settings list` redacts secret values as `***configured***`.
-- Secret keys are stored in OS credential storage by default.
+- `settings list` 会将密钥值脱敏显示为 `***configured***`。
+- 默认情况下，密钥写入操作系统凭据存储。
 
-### Supported aspect ratios
+### 支持的宽高比
 
-`1:1` (default) · `16:9` · `9:16` · `4:3` · `3:4` · `3:2` · `2:3` · `2:1` · `1:2` · `21:9`
+`1:1`（默认）· `16:9` · `9:16` · `4:3` · `3:4` · `3:2` · `2:3` · `2:1` · `1:2` · `21:9`
 
-Dimension mapping used for generation:
+生成时使用如下像素映射：
 
 | Ratio | Width | Height |
 |-------|-------|--------|
@@ -146,9 +147,9 @@ Dimension mapping used for generation:
 | `1:2` | 704 | 1408 |
 | `21:9` | 1536 | 640 |
 
-If an unsupported aspect ratio is provided programmatically, Limn falls back to `1:1`.
+如果在编程接口中传入不支持的宽高比，Limn 会回退到 `1:1`。
 
-## Supported Models
+## 支持模型
 
 | Model | Provider | Style | Generation |
 |-------|----------|-------|-----------|
@@ -161,9 +162,9 @@ If an unsupported aspect ratio is provided programmatically, Limn falls back to 
 | `qwen-image` | Alibaba / Qwen | Natural language + quality suffix, positional logic | ✓ |
 | `wan-image` | Alibaba / Wan | Cinematographic lexicon | ✓ |
 
-### Valid `--replicate-model` overrides by family
+### 各模型家族可用的 `--replicate-model` 覆盖值
 
-`--replicate-model` must be one of the allowed Replicate model IDs for the selected family.
+`--replicate-model` 必须是当前 `-m` 所属家族允许的 Replicate model ID。
 
 | Family (`-m`) | Allowed Replicate model IDs | Default |
 |---------------|------------------------------|---------|
@@ -176,43 +177,43 @@ If an unsupported aspect ratio is provided programmatically, Limn falls back to 
 | `wan-image` | `prunaai/wan-2.2-image` | `prunaai/wan-2.2-image` |
 | `chroma` | generation not supported | n/a |
 
-## Configuration
+## 配置
 
-Limn resolves API keys in this order:
+Limn 按以下顺序解析 API Key：
 
-**OpenRouter key:**
-1. `OPENROUTER_API_KEY` environment variable
-2. OS keychain (macOS Keychain / Linux libsecret)
+**OpenRouter key：**
+1. 环境变量 `OPENROUTER_API_KEY`
+2. 系统密钥存储（macOS Keychain / Linux libsecret）
 
-**Replicate key:**
-1. `REPLICATE_API_TOKEN` environment variable
-2. `REPLICATE_API_KEY` environment variable
-3. OS keychain
+**Replicate key：**
+1. 环境变量 `REPLICATE_API_TOKEN`
+2. 环境变量 `REPLICATE_API_KEY`
+3. 系统密钥存储
 
-`openrouterModel` is loaded from global config (`limn settings set openrouterModel ...`).
-If not set, Limn defaults to `deepseek/deepseek-v4-pro`.
+`openrouterModel` 从全局配置读取（`limn settings set openrouterModel ...`）。
+如果未设置，默认使用 `deepseek/deepseek-v4-pro`。
 
-The LLM model used for prompt transformations can be set via:
+设置用于提示词转换的 LLM：
 
 ```bash
 limn settings set openrouterModel deepseek/deepseek-v4-pro
 ```
 
-### Environment Variables
+### 环境变量
 
 | Variable | Purpose |
 |----------|---------|
 | `OPENROUTER_API_KEY` | OpenRouter API key |
-| `REPLICATE_API_TOKEN` | Replicate API key (highest precedence) |
-| `REPLICATE_API_KEY` | Replicate API key (alternate name) |
-| `LIMN_DISABLE_KEYTAR` | Set to `true` (case-insensitive) to skip keychain |
-| `NO_COLOR` | Disable color output |
-| `FORCE_COLOR` | Force color output when supported |
-| `TERM` | Affects color detection (`dumb` disables color) |
+| `REPLICATE_API_TOKEN` | Replicate API key（最高优先级） |
+| `REPLICATE_API_KEY` | Replicate API key（备用变量名） |
+| `LIMN_DISABLE_KEYTAR` | 设为 `true`（大小写不敏感）可禁用 keychain |
+| `NO_COLOR` | 禁用彩色输出 |
+| `FORCE_COLOR` | 强制启用彩色输出（终端支持时） |
+| `TERM` | 影响颜色检测（`dumb` 会禁用颜色） |
 
 ## Library API
 
-### Transform only
+### 仅转换
 
 ```ts
 import { limn } from '@telepat/limn';
@@ -221,7 +222,7 @@ const result = await limn('a cat in space', 'sdxl');
 // { model: 'sdxl', prompt: '...', negativePrompt: '...' }
 ```
 
-JSON output (transform-only with CLI `--json`) follows the same shape:
+仅转换的 CLI `--json` 输出同样遵循该结构：
 
 ```json
 {
@@ -231,7 +232,7 @@ JSON output (transform-only with CLI `--json`) follows the same shape:
 }
 ```
 
-### Generate image
+### 生成图片
 
 ```ts
 import { limnGenerate } from '@telepat/limn';
@@ -248,7 +249,7 @@ const result = await limnGenerate('a cat in space', 'flux');
 // }
 ```
 
-### Class-based (inject API keys)
+### Class 方式（注入 API Key）
 
 ```ts
 import { Limn } from '@telepat/limn';
@@ -258,19 +259,19 @@ const limn = new Limn({
   replicateApiKey: 'r8_...',
 });
 
-// Transform only
+// 仅转换
 const transformed = await limn.transform('a cat in space', 'flux');
 
-// Transform + generate
+// 转换 + 生成
 const result = await limn.generate('a cat in space', 'flux', {
   aspectRatio: '16:9',
-  replicateModel: 'black-forest-labs/flux-2-pro', // optional override
+  replicateModel: 'black-forest-labs/flux-2-pro', // 可选覆盖
 });
 ```
 
-### Analytics object
+### Analytics 对象
 
-Both `limnGenerate` and `Limn.generate()` return a `GenerationAnalytics` object:
+`limnGenerate` 与 `Limn.generate()` 都会返回 `GenerationAnalytics`：
 
 ```ts
 interface GenerationAnalytics {
@@ -278,16 +279,16 @@ interface GenerationAnalytics {
   openrouterDurationMs: number;
   replicateDurationMs: number;
   openrouterUsage: OpenRouterUsage | null;
-  openrouterCostUsd: number | null;       // actual cost from OpenRouter
+  openrouterCostUsd: number | null;       // OpenRouter 实际成本
   openrouterGenerationId: string | null;
   replicatePredictionId: string;
-  replicateEstimatedCostUsd: number | null; // estimated from pricing tables
+  replicateEstimatedCostUsd: number | null; // 基于价格表估算
   totalEstimatedCostUsd: number | null;
   costSource: 'actual+estimate' | 'estimate-only' | 'unknown';
 }
 ```
 
-### Additional exports
+### 其他导出
 
 ```ts
 import {
@@ -303,12 +304,12 @@ import {
 } from '@telepat/limn';
 ```
 
-`profiles` exposes the model profiles/system prompts used by Limn.
+`profiles` 暴露了 Limn 内部使用的模型 profile/system prompt。
 
-## Development
+## 开发
 
 ```bash
-npm run dev        # run CLI from source
+npm run dev        # 从源码运行 CLI
 npm run lint
 npm run typecheck
 npm run test
@@ -317,9 +318,9 @@ npm run build:guide
 
 ## Prompting Guide
 
-See [docs/PROMPTING_GUIDE.md](docs/PROMPTING_GUIDE.md) for comprehensive per-model prompting strategies.
+查看 [docs/PROMPTING_GUIDE.md](docs/PROMPTING_GUIDE.md) 获取完整的分模型提示词策略。
 
-`docs/PROMPTING_GUIDE.md` is generated from profile metadata. Regenerate with:
+`docs/PROMPTING_GUIDE.md` 由 profile 元数据生成，可通过以下命令重新生成：
 
 ```bash
 npm run build:guide
