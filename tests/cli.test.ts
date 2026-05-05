@@ -11,6 +11,7 @@ describe('CLI', () => {
   let errorSpy: jest.SpiedFunction<typeof console.error>;
 
   beforeEach(() => {
+    process.exitCode = 0;
     mCall.mockReset();
     setCallOpenRouter(mockCall);
     logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
@@ -21,6 +22,7 @@ describe('CLI', () => {
     logSpy.mockRestore();
     errorSpy.mockRestore();
     setCallOpenRouter(null);
+    process.exitCode = 0;
   });
 
   it('should output plain text by default', async () => {
