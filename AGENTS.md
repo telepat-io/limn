@@ -42,7 +42,7 @@ Use `package.json` scripts as canonical. Do not invent alternate command names.
 
 - TypeScript strict mode is enabled.
 - ESLint rejects `any` and unused vars (except `_`-prefixed args).
-- Unit coverage threshold: `lines >= 50`, `branches >= 40`.
+- Unit coverage threshold: `lines >= 90`, `branches >= 90`.
 - CI enforces lint → typecheck → test → build.
 
 ## Editing Rules

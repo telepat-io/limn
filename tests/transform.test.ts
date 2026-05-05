@@ -1,7 +1,8 @@
-import { describe, it, expect } from '@jest/globals';
-import { buildSystemPrompt } from '../src/transform/index.js';
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { buildSystemPrompt, transform } from '../src/transform/index.js';
 import { VALID_MODELS } from '../src/types.js';
 import type { ModelId } from '../src/types.js';
+import { setCallOpenRouter } from '../src/core/openrouter.js';
 
 describe('transform', () => {
   describe('buildSystemPrompt', () => {
@@ -68,5 +69,41 @@ describe('transform', () => {
       expect(prompt).toContain('Qwen Image');
       expect(prompt).toContain('QUALITY SUFFIX');
     });
+  });
+});
+
+describe('transform function', () => {
+  beforeEach(() => {
+    setCallOpenRouter(null);
+  });
+
+  afterEach(() => {
+    setCallOpenRouter(null);
+  });
+
+  it('returns transformed result for flux', async () => {
+    setCallOpenRouter(async () => 'A cat in space');
+    const result = await transform('a cat', 'flux');
+    expect(result.model).toBe('flux');
+    expect(result.prompt).toBe('A cat in space');
+    expect(result.negativePrompt).toBeUndefined();
+  });
+
+  it('extracts negative prompt for sdxl', async () => {
+    setCallOpenRouter(async () => 'A cat\nnegative_prompt: low quality');
+    const result = await transform('a cat', 'sdxl');
+    expect(result.prompt).toBe('A cat');
+    expect(result.negativePrompt).toBe('low quality');
+  });
+
+  it('does not extract negative prompt when not present', async () => {
+    setCallOpenRouter(async () => 'A cat');
+    const result = await transform('a cat', 'sdxl');
+    expect(result.prompt).toBe('A cat');
+    expect(result.negativePrompt).toBeUndefined();
+  });
+
+  it('throws for unknown model', async () => {
+    await expect(transform('a cat', 'unknown-model' as ModelId)).rejects.toThrow('Unknown model');
   });
 });

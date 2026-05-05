@@ -70,6 +70,23 @@ describe('estimateReplicateCost', () => {
     // 512x512 = 0.262 MP → first tier
     expect(estimateReplicateCost(def, { width: 512, height: 512 })).toBe(0.01);
   });
+
+  it('output_image_megapixels: falls back to last tier when exceeding all', () => {
+    const def = makeDefinition({
+      basis: 'output_image_megapixels',
+      tiers: [
+        { maxMegapixels: 1, usdPerImage: 0.01 },
+        { maxMegapixels: 4, usdPerImage: 0.02 },
+      ],
+    });
+    // 2048x2048 = 4.194304 MP → exceeds all tiers → last tier
+    expect(estimateReplicateCost(def, { width: 2048, height: 2048 })).toBe(0.02);
+  });
+
+  it('returns null for unknown pricing basis', () => {
+    const def = makeDefinition({ basis: 'unknown' as never, usdPerImage: 0.01 });
+    expect(estimateReplicateCost(def)).toBeNull();
+  });
 });
 
 describe('buildAnalytics', () => {
@@ -113,5 +130,14 @@ describe('buildAnalytics', () => {
     expect(result.costSource).toBe('unknown');
     expect(result.totalEstimatedCostUsd).toBeNull();
     expect(result.openrouterUsage).toBeNull();
+  });
+
+  it('builds analytics with actual cost but no replicate estimate', () => {
+    const startMs = Date.now() - 2000;
+    const usage = { promptTokens: 10, completionTokens: 50, totalTokens: 60, costUsd: 0.0002, generationId: 'or-abc' };
+    const result = buildAnalytics(startMs, 500, usage, { predictionId: 'rep-123' });
+    expect(result.openrouterCostUsd).toBe(0.0002);
+    expect(result.totalEstimatedCostUsd).toBeNull();
+    expect(result.costSource).toBe('unknown');
   });
 });
