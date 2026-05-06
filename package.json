@@ -18,7 +18,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && mkdir -p dist/src/models && cp -r src/models/definitions dist/src/models/definitions",
     "dev": "tsx src/bin.ts",
     "lint": "eslint src tests --ext .ts",
     "typecheck": "tsc --noEmit",
