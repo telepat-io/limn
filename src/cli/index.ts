@@ -16,6 +16,8 @@ import {
   resolveReplicateModelId,
   DEFINITIONS_BY_MODEL_ID,
   getUserConfigurableFields,
+  getSupportedAspectRatios,
+  getGenerationInputMode,
 } from '../models/registry.js';
 
 function resolveCliVersion(): string {
@@ -207,7 +209,10 @@ function printModelOptions(modelId: ModelId, c: Colors): void {
   }
 
   const fields = getUserConfigurableFields(definition);
-  if (fields.length === 0) {
+  const mode = getGenerationInputMode(definition);
+  const ratios = getSupportedAspectRatios(definition);
+
+  if (fields.length === 0 && ratios.length === 0) {
     console.log(c.dim('No user-configurable options for this model.'));
     return;
   }
@@ -215,23 +220,31 @@ function printModelOptions(modelId: ModelId, c: Colors): void {
   console.log(`${c.bold('Options for')} ${c.cyan(modelId)} ${c.dim(`(${replicateModelSlug})`)}`);
   console.log('');
 
-  const nameWidth = Math.max(...fields.map((f) => f.name.length), 4);
+  // Aspect ratios
+  const modeLabel = mode === 'aspect_ratio' ? '' : c.dim(' (via width/height mapping)');
+  console.log(`  ${c.cyan('aspect_ratio'.padEnd(22))}  ${ratios.join(', ')}${modeLabel}`);
+  console.log('');
 
-  for (const { name, schema } of fields) {
-    const typeLabel = schema.enum
-      ? `enum[${schema.enum.join(', ')}]`
-      : schema.type;
-    const defaultLabel = schema.default !== undefined ? `default: ${String(schema.default)}` : '';
-    const rangeLabel =
-      schema.minimum !== undefined && schema.maximum !== undefined
-        ? `${schema.minimum}..${schema.maximum}`
-        : schema.minimum !== undefined
-          ? `>=${schema.minimum}`
-          : schema.maximum !== undefined
-            ? `<=${schema.maximum}`
-            : '';
-    const meta = [typeLabel, rangeLabel, defaultLabel].filter(Boolean).join(' | ');
-    console.log(`  ${c.cyan(name.padEnd(nameWidth))}  ${c.dim(meta)}`);
+  // User-configurable fields
+  if (fields.length > 0) {
+    const nameWidth = Math.max(...fields.map((f) => f.name.length), 4);
+
+    for (const { name, schema } of fields) {
+      const typeLabel = schema.enum
+        ? `enum[${schema.enum.join(', ')}]`
+        : schema.type;
+      const defaultLabel = schema.default !== undefined ? `default: ${String(schema.default)}` : '';
+      const rangeLabel =
+        schema.minimum !== undefined && schema.maximum !== undefined
+          ? `${schema.minimum}..${schema.maximum}`
+          : schema.minimum !== undefined
+            ? `>=${schema.minimum}`
+            : schema.maximum !== undefined
+              ? `<=${schema.maximum}`
+              : '';
+      const meta = [typeLabel, rangeLabel, defaultLabel].filter(Boolean).join(' | ');
+      console.log(`  ${c.cyan(name.padEnd(nameWidth))}  ${c.dim(meta)}`);
+    }
   }
 }
 
@@ -252,7 +265,7 @@ export async function runCli(args: string[]): Promise<number> {
     .option('--json', 'Output as JSON')
     .option('--generate', 'Generate the image via Replicate after transforming the prompt')
     .option('--replicate-model <modelId>', 'Override the default Replicate model for the selected family')
-    .option('--aspect-ratio <ratio>', 'Aspect ratio for generation (e.g. 1:1, 16:9, 9:16)', '1:1')
+    .option('--aspect-ratio <ratio>', 'Aspect ratio for generation (universally supported: 1:1, 16:9, 9:16)', '1:1')
     .option('--options <json>', 'JSON object of user-configurable model options (e.g. \'{"num_outputs":2}\')')
     .option('--list-options', 'List available options for the selected model and exit')
     .action(async (prompt, options) => {

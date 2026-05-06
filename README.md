@@ -75,7 +75,16 @@ limn -m flux "a cat in space" --generate --aspect-ratio 16:9
 
 # Override Replicate model
 limn -m flux "a cat in space" --generate --replicate-model black-forest-labs/flux-2-pro
+
+# List model options (including supported aspect ratios)
+limn -m seedream-4 "a cat in space" --list-options
 ```
+
+### Aspect Ratio Support
+
+All models support `1:1`, `16:9`, and `9:16` universally. Each model also supports additional ratios depending on its capabilities — Limn validates the chosen ratio before sending it to Replicate, so you get a clear error immediately if the ratio is unsupported by that model.
+
+Use `--list-options` on any model to see its full set of supported aspect ratios.
 
 Per-model prompting strategies are documented in the [Prompting Guide](https://github.com/telepat-io/limn/blob/main/docs/PROMPTING_GUIDE.md).
 

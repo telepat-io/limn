@@ -65,7 +65,7 @@ export function getGenerationInputMode(definition: ModelDefinition): GenerationI
   return 'aspect_ratio';
 }
 
-// Standard aspect-ratio → dimensions mapping
+// Standard aspect-ratio → dimensions mapping (base ~1MP)
 export const ASPECT_RATIO_DIMENSIONS: Record<string, { width: number; height: number }> = {
   '1:1':  { width: 1024, height: 1024 },
   '16:9': { width: 1344, height: 768 },
@@ -78,6 +78,117 @@ export const ASPECT_RATIO_DIMENSIONS: Record<string, { width: number; height: nu
   '1:2':  { width: 704,  height: 1408 },
   '21:9': { width: 1536, height: 640 },
 };
+
+const SUPPORTED_ASPECT_RATIOS = Object.keys(ASPECT_RATIO_DIMENSIONS);
+
+const RESOLUTION_SCALE_MAP: Record<string, number> = {
+  '1K': 1.0,
+  '2K': Math.SQRT2,
+  '4K': 2.0,
+};
+
+/**
+ * Returns the aspect ratios supported by the given model definition.
+ * - For `aspect_ratio` mode: returns the model's enum.
+ * - For `dimensions` / `custom_dimensions` mode: returns all ratios from ASPECT_RATIO_DIMENSIONS.
+ */
+export function getSupportedAspectRatios(definition: ModelDefinition): string[] {
+  const mode = getGenerationInputMode(definition);
+  if (mode === 'aspect_ratio') {
+    return definition.inputOptions.fields['aspect_ratio']?.enum ?? [];
+  }
+  return SUPPORTED_ASPECT_RATIOS;
+}
+
+export interface AspectRatioValidationResult {
+  valid: boolean;
+  supported: string[];
+  error?: string;
+}
+
+/**
+ * Validates that the given aspect ratio is supported by the model.
+ * Returns a structured result with an error message if invalid.
+ */
+export function validateAspectRatio(
+  definition: ModelDefinition,
+  ratio: string,
+): AspectRatioValidationResult {
+  const supported = getSupportedAspectRatios(definition);
+  if (supported.includes(ratio)) {
+    return { valid: true, supported };
+  }
+  return {
+    valid: false,
+    supported,
+    error: `Aspect ratio "${ratio}" is not supported by ${definition.modelId}. Supported: ${supported.join(', ')}`,
+  };
+}
+
+/**
+ * Rounds a dimension to the nearest multiple of 64 (required by most diffusion models).
+ */
+function roundTo64(n: number): number {
+  return Math.round(n / 64) * 64;
+}
+
+/**
+ * Resolves pixel dimensions for a given aspect ratio, applying an optional resolution scale.
+ * The base dimensions are scaled, then rounded to the nearest multiple of 64.
+ */
+export function resolveDimensions(
+  aspectRatio: string,
+  scale = 1.0,
+): { width: number; height: number } {
+  const base = ASPECT_RATIO_DIMENSIONS[aspectRatio] ?? ASPECT_RATIO_DIMENSIONS['1:1']!;
+  if (scale === 1.0) return base;
+  return {
+    width: roundTo64(base.width * scale),
+    height: roundTo64(base.height * scale),
+  };
+}
+
+/**
+ * Derives a resolution scale factor from a model's merged options.
+ * Checks for known resolution-related fields (megapixels, size, resolution, image_size)
+ * and returns a scale factor relative to the ~1MP base dimensions.
+ */
+export function getResolutionScale(
+  definition: ModelDefinition,
+  mergedOptions: Record<string, unknown>,
+): number {
+  const fields = definition.inputOptions.fields;
+
+  // megapixels: scale = sqrt(megapixels)
+  if (fields['megapixels']) {
+    const raw = mergedOptions['megapixels'];
+    if (raw !== undefined) {
+      const mp = typeof raw === 'string' ? Number(raw) : (raw as number);
+      if (Number.isFinite(mp) && mp > 0) return Math.sqrt(mp);
+    }
+  }
+
+  // size or resolution: "1K", "2K", "4K"
+  for (const key of ['size', 'resolution'] as const) {
+    if (fields[key]) {
+      const raw = mergedOptions[key];
+      if (typeof raw === 'string' && raw in RESOLUTION_SCALE_MAP) {
+        return RESOLUTION_SCALE_MAP[raw]!;
+      }
+    }
+  }
+
+  // image_size: numeric pixel value relative to 1024 baseline
+  if (fields['image_size']) {
+    const raw = mergedOptions['image_size'];
+    if (raw !== undefined && raw !== 'optimize_for_quality') {
+      const px = typeof raw === 'string' ? Number(raw) : (raw as number);
+      if (Number.isFinite(px) && px > 0) return px / 1024;
+    }
+  }
+
+  return 1.0;
+}
 
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';

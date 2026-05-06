@@ -6,9 +6,11 @@ import { readGlobalConfig } from './config.js';
 import {
   resolveReplicateModelId,
   getGenerationInputMode,
-  ASPECT_RATIO_DIMENSIONS,
   DEFINITIONS_BY_MODEL_ID,
   validateUserOption,
+  validateAspectRatio,
+  resolveDimensions,
+  getResolutionScale,
   type ModelDefinition,
 } from '../models/registry.js';
 import type { ModelId } from '../types.js';
@@ -70,20 +72,20 @@ export function buildGenerationInput(
   }
 
   const mode = getGenerationInputMode(definition);
+
+  // Validate aspect ratio early — fail fast with a clear error
+  const arValidation = validateAspectRatio(definition, aspectRatio);
+  if (!arValidation.valid) {
+    throw new Error(arValidation.error!);
+  }
+
   const input: Record<string, unknown> = { prompt };
 
+  // Set aspect_ratio for native models (defer dimensions until after options merge)
   if (mode === 'aspect_ratio') {
     input['aspect_ratio'] = aspectRatio;
-  } else if (mode === 'dimensions') {
-    const dims = ASPECT_RATIO_DIMENSIONS[aspectRatio] ?? ASPECT_RATIO_DIMENSIONS['1:1']!;
-    input['width'] = dims.width;
-    input['height'] = dims.height;
-  } else {
-    // custom_dimensions (flux-2-pro style)
+  } else if (mode === 'custom_dimensions') {
     input['aspect_ratio'] = 'custom';
-    const dims = ASPECT_RATIO_DIMENSIONS[aspectRatio] ?? ASPECT_RATIO_DIMENSIONS['1:1']!;
-    input['width'] = dims.width;
-    input['height'] = dims.height;
   }
 
   // Pass negative prompt if the model's fields include it
@@ -125,6 +127,23 @@ export function buildGenerationInput(
     if (errors.length > 0) {
       throw new Error(`Invalid generation options:\n${errors.join('\n')}`);
     }
+  }
+
+  // Resolve dimensions for models that need width/height (now resolution-aware)
+  if (mode === 'dimensions' || mode === 'custom_dimensions') {
+    const scale = getResolutionScale(definition, mergedOptions);
+    const dims = resolveDimensions(aspectRatio, scale);
+    // Clamp to schema min/max if defined
+    const wField = definition.inputOptions.fields['width'];
+    const hField = definition.inputOptions.fields['height'];
+    mergedOptions['width'] = Math.min(
+      wField?.maximum ?? dims.width,
+      Math.max(wField?.minimum ?? dims.width, dims.width),
+    );
+    mergedOptions['height'] = Math.min(
+      hField?.maximum ?? dims.height,
+      Math.max(hField?.minimum ?? dims.height, dims.height),
+    );
   }
 
   return mergedOptions;

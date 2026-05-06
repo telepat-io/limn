@@ -8,6 +8,10 @@ import {
   getSupportedModelCatalog,
   validateUserOption,
   getUserConfigurableFields,
+  getSupportedAspectRatios,
+  validateAspectRatio,
+  resolveDimensions,
+  getResolutionScale,
 } from '../src/models/registry.js';
 import type { ModelDefinition, FieldDefinition } from '../src/models/registry.js';
 
@@ -218,5 +222,131 @@ describe('validateUserOption edge cases', () => {
     const fields = getUserConfigurableFields(def);
     expect(fields).toHaveLength(1);
     expect(fields[0].name).toBe('seed');
+  });
+});
+
+describe('getSupportedAspectRatios', () => {
+  it('returns enum for aspect_ratio mode models', () => {
+    const fluxDef = DEFINITIONS_BY_MODEL_ID['black-forest-labs/flux-schnell']!;
+    const ratios = getSupportedAspectRatios(fluxDef);
+    expect(ratios).toContain('1:1');
+    expect(ratios).toContain('16:9');
+    expect(ratios).toContain('21:9');
+    expect(ratios).toContain('4:5');
+  });
+
+  it('returns all dimension map keys for dimensions mode models', () => {
+    const sdxlDef = DEFINITIONS_BY_MODEL_ID['stability-ai/sdxl']!;
+    const ratios = getSupportedAspectRatios(sdxlDef);
+    expect(ratios).toEqual(Object.keys(ASPECT_RATIO_DIMENSIONS));
+  });
+
+  it('returns all dimension map keys for custom_dimensions mode models', () => {
+    const flux2Def = DEFINITIONS_BY_MODEL_ID['black-forest-labs/flux-2-pro']!;
+    const ratios = getSupportedAspectRatios(flux2Def);
+    expect(ratios).toEqual(Object.keys(ASPECT_RATIO_DIMENSIONS));
+  });
+});
+
+describe('validateAspectRatio', () => {
+  it('passes for supported ratio on aspect_ratio model', () => {
+    const fluxDef = DEFINITIONS_BY_MODEL_ID['black-forest-labs/flux-schnell']!;
+    const result = validateAspectRatio(fluxDef, '21:9');
+    expect(result.valid).toBe(true);
+    expect(result.error).toBeUndefined();
+  });
+
+  it('fails for unsupported ratio on aspect_ratio model', () => {
+    const seedreamDef = DEFINITIONS_BY_MODEL_ID['bytedance/seedream-4']!;
+    const result = validateAspectRatio(seedreamDef, '21:9');
+    expect(result.valid).toBe(false);
+    expect(result.error).toContain('21:9');
+    expect(result.error).toContain('seedream-4');
+    expect(result.error).toContain('1:1, 16:9, 9:16');
+  });
+
+  it('passes for any ratio in dimension map on dimensions model', () => {
+    const sdxlDef = DEFINITIONS_BY_MODEL_ID['stability-ai/sdxl']!;
+    for (const ratio of Object.keys(ASPECT_RATIO_DIMENSIONS)) {
+      const result = validateAspectRatio(sdxlDef, ratio);
+      expect(result.valid).toBe(true);
+    }
+  });
+
+  it('fails for unknown ratio on dimensions model', () => {
+    const sdxlDef = DEFINITIONS_BY_MODEL_ID['stability-ai/sdxl']!;
+    const result = validateAspectRatio(sdxlDef, '5:7');
+    expect(result.valid).toBe(false);
+    expect(result.error).toContain('5:7');
+  });
+});
+
+describe('resolveDimensions', () => {
+  it('returns base dimensions at scale 1.0', () => {
+    const dims = resolveDimensions('1:1', 1.0);
+    expect(dims).toEqual({ width: 1024, height: 1024 });
+  });
+
+  it('scales dimensions and rounds to multiples of 64', () => {
+    const dims = resolveDimensions('1:1', 2.0);
+    expect(dims.width).toBe(2048);
+    expect(dims.height).toBe(2048);
+    expect(dims.width % 64).toBe(0);
+    expect(dims.height % 64).toBe(0);
+  });
+
+  it('scales non-square dimensions correctly', () => {
+    const dims = resolveDimensions('16:9', Math.SQRT2);
+    expect(dims.width % 64).toBe(0);
+    expect(dims.height % 64).toBe(0);
+    // Should be approximately 1.41x the base
+    expect(dims.width).toBeGreaterThan(1344);
+    expect(dims.height).toBeGreaterThan(768);
+  });
+
+  it('falls back to 1:1 for unknown ratio', () => {
+    const dims = resolveDimensions('unknown');
+    expect(dims).toEqual({ width: 1024, height: 1024 });
+  });
+});
+
+describe('getResolutionScale', () => {
+  it('returns 1.0 when no resolution fields exist', () => {
+    const def = makeDefinitionWithFields(['width', 'height'], [], {});
+    expect(getResolutionScale(def, {})).toBe(1.0);
+  });
+
+  it('derives scale from megapixels field', () => {
+    const def = makeDefinitionWithFields(['aspect_ratio'], ['megapixels'], {
+      megapixels: { type: 'string', default: '1' },
+    });
+    expect(getResolutionScale(def, { megapixels: '4' })).toBe(2.0);
+    expect(getResolutionScale(def, { megapixels: '1' })).toBe(1.0);
+    expect(getResolutionScale(def, { megapixels: 2 })).toBeCloseTo(Math.SQRT2, 5);
+  });
+
+  it('derives scale from size field', () => {
+    const def = makeDefinitionWithFields(['aspect_ratio'], ['size'], {
+      size: { type: 'string', default: '2K', enum: ['1K', '2K', '4K'] },
+    });
+    expect(getResolutionScale(def, { size: '1K' })).toBe(1.0);
+    expect(getResolutionScale(def, { size: '2K' })).toBeCloseTo(Math.SQRT2, 5);
+    expect(getResolutionScale(def, { size: '4K' })).toBe(2.0);
+  });
+
+  it('derives scale from resolution field', () => {
+    const def = makeDefinitionWithFields(['aspect_ratio'], ['resolution'], {
+      resolution: { type: 'string', default: '2K' },
+    });
+    expect(getResolutionScale(def, { resolution: '4K' })).toBe(2.0);
+  });
+
+  it('derives scale from image_size field', () => {
+    const def = makeDefinitionWithFields(['aspect_ratio'], ['image_size'], {
+      image_size: { type: 'string', default: 'optimize_for_quality' },
+    });
+    expect(getResolutionScale(def, { image_size: '1024' })).toBe(1.0);
+    expect(getResolutionScale(def, { image_size: '2048' })).toBe(2.0);
+    expect(getResolutionScale(def, { image_size: 'optimize_for_quality' })).toBe(1.0);
   });
 });

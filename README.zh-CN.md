@@ -75,7 +75,16 @@ limn -m flux "a cat in space" --generate --aspect-ratio 16:9
 
 # 覆盖 Replicate 模型
 limn -m flux "a cat in space" --generate --replicate-model black-forest-labs/flux-2-pro
+
+# 列出模型选项（包括支持的宽高比）
+limn -m seedream-4 "a cat in space" --list-options
 ```
+
+### 宽高比支持
+
+所有模型均通用支持 `1:1`、`16:9` 和 `9:16`。每个模型还根据自身能力支持额外的宽高比 —— Limn 会在发送到 Replicate 之前验证所选宽高比，因此如果该模型不支持，你会立即收到清晰的错误提示。
+
+对任意模型使用 `--list-options` 即可查看其完整的支持宽高比列表。
 
 各模型的提示策略详见 [Prompting Guide](https://github.com/telepat-io/limn/blob/main/docs/PROMPTING_GUIDE.md)。
 
