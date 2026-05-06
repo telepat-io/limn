@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.5](https://github.com/telepat-io/limn/compare/limn-v0.1.4...limn-v0.1.5) (2026-05-06)
+
+
+### Features
+
+* add aspect ratio support with validation and listing options in CLI, update README and tests ([acc3865](https://github.com/telepat-io/limn/commit/acc3865e2388c17be41e9c00ae93405fb1b7d5e9))
+* add user-configurable options support in CLI and image generation, including validation and listing options ([5a7468f](https://github.com/telepat-io/limn/commit/5a7468f045dba2450a6eb4b1992aa07b2ab8885d))
+* enhance build script to create model definitions directory and copy files ([18b8797](https://github.com/telepat-io/limn/commit/18b87970b64b2cefd3d309a8a7b42fe290cdd517))
+* increase unit test coverage thresholds to 90% and add new tests for image generation and validation ([fade5d6](https://github.com/telepat-io/limn/commit/fade5d6c4f5b853d1494643d0e5d8ac80ceaa7d7))
+
 ## [0.1.4](https://github.com/telepat-io/limn/compare/limn-v0.1.3...limn-v0.1.4) (2026-05-05)
 
 
