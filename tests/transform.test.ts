@@ -36,7 +36,7 @@ describe('transform', () => {
       const prompt = buildSystemPrompt('z-image-turbo');
       expect(prompt).toContain('Z-Image Turbo');
       expect(prompt).toContain('NO NEGATIVE PROMPTS');
-      expect(prompt).toContain('75');
+      expect(prompt).toContain('FRONT-LOAD');
     });
 
     it('should produce seedream-4-specific rules', () => {
