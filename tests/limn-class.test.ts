@@ -203,6 +203,31 @@ describe('limnGenerate', () => {
     );
   });
 
+  it('should handle SDXL output without negative_prompt line', async () => {
+    mockCallOpenRouterFull.mockResolvedValue({
+      text: 'prompt without negative section',
+      usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2, costUsd: null, generationId: null },
+      durationMs: 100,
+    });
+    mockGenerateImage.mockResolvedValue({
+      buffer: Buffer.from('img'),
+      filename: 'test.png',
+      savedPath: '/tmp/test.png',
+      mimeType: 'image/png',
+      modelSlug: 'stability-ai/sdxl',
+      replicatePredictionId: 'p1',
+      replicateDurationMs: 200,
+      definition: undefined,
+      inputSentToModel: {},
+    });
+
+    const result = await limnGenerate('a cat', 'sdxl', { replicateApiKey: 'rep' });
+    expect(result.promptUsed).toBe('prompt without negative section');
+    expect(mockGenerateImage).toHaveBeenCalledWith(
+      expect.objectContaining({ negativePrompt: undefined }),
+    );
+  });
+
   it('should merge config from readGlobalConfig', async () => {
     mockReadGlobalConfig.mockResolvedValue({
       openrouterModel: 'base-model',

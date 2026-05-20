@@ -83,6 +83,39 @@ describe('estimateReplicateCost', () => {
     expect(estimateReplicateCost(def, { width: 2048, height: 2048 })).toBe(0.02);
   });
 
+  it('output_image_resolution: falls back to fallback tier when no resolution in input', () => {
+    const def = makeDefinition({
+      basis: 'output_image_resolution',
+      tiers: [
+        { resolution: '1K', usdPerImage: 0.15 },
+        { resolution: 'fallback', usdPerImage: 0.20 },
+      ],
+    });
+    expect(estimateReplicateCost(def)).toBe(0.20);
+  });
+
+  it('output_image_resolution: returns null when no tier matches and no fallback tier', () => {
+    const def = makeDefinition({
+      basis: 'output_image_resolution',
+      tiers: [
+        { resolution: '1K', usdPerImage: 0.15 },
+      ],
+    });
+    expect(estimateReplicateCost(def, { resolution: '4K' })).toBeNull();
+  });
+
+  it('output_image_megapixels: uses default dimensions when not in input', () => {
+    const def = makeDefinition({
+      basis: 'output_image_megapixels',
+      tiers: [
+        { maxMegapixels: 1, usdPerImage: 0.01 },
+        { maxMegapixels: 4, usdPerImage: 0.02 },
+      ],
+    });
+    // 1024*1024 / 1_000_000 ≈ 1.049 → second tier (maxMegapixels: 4)
+    expect(estimateReplicateCost(def)).toBe(0.02);
+  });
+
   it('returns null for unknown pricing basis', () => {
     const def = makeDefinition({ basis: 'unknown' as never, usdPerImage: 0.01 });
     expect(estimateReplicateCost(def)).toBeNull();

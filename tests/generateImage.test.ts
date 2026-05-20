@@ -251,6 +251,29 @@ describe('generateImage', () => {
     expect(mockReadGlobalConfig).not.toHaveBeenCalled();
   });
 
+  it('uses version hash path for SDXL model', async () => {
+    mockReadGlobalConfig.mockResolvedValue({ replicateApiKey: 'rep-key' });
+    mockPredictionsCreate.mockResolvedValue({ id: 'pred-sdxl' });
+    mockWait.mockResolvedValue({
+      id: 'pred-sdxl',
+      error: null,
+      metrics: { predict_time: 1.5 },
+      output: 'https://example.com/image.png',
+    });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      arrayBuffer: async () => new ArrayBuffer(3),
+    });
+
+    await generateImage({ family: 'sdxl', prompt: 'a cat' });
+    expect(mockPredictionsCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: 'stability-ai/sdxl',
+        version: expect.stringMatching(/^[0-9a-f]{64}$/),
+      }),
+    );
+  });
+
   it('calculates duration from Date.now when predict_time missing', async () => {
     mockReadGlobalConfig.mockResolvedValue({ replicateApiKey: 'rep-key' });
     mockPredictionsCreate.mockResolvedValue({ id: 'pred-13' });

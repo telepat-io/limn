@@ -223,6 +223,41 @@ describe('validateUserOption edge cases', () => {
     expect(fields).toHaveLength(1);
     expect(fields[0].name).toBe('seed');
   });
+
+  it('rejects boolean for integer field', () => {
+    const def = makeDefinitionWithFields([], ['seed'], { seed: { type: 'integer' } });
+    const result = validateUserOption(def, 'seed', true);
+    expect(result.valid).toBe(false);
+    expect(result.error?.reason).toContain('must be an integer');
+  });
+
+  it('coerces valid number string for number field', () => {
+    const def = makeDefinitionWithFields([], ['strength'], { strength: { type: 'number' } });
+    const result = validateUserOption(def, 'strength', '1.5');
+    expect(result.valid).toBe(true);
+    expect(result.coerced).toBe(1.5);
+  });
+
+  it('accepts raw number for number field', () => {
+    const def = makeDefinitionWithFields([], ['strength'], { strength: { type: 'number' } });
+    const result = validateUserOption(def, 'strength', 1.5);
+    expect(result.valid).toBe(true);
+    expect(result.coerced).toBe(1.5);
+  });
+
+  it('rejects non-string for string field', () => {
+    const def = makeDefinitionWithFields([], ['output_format'], { output_format: { type: 'string' } });
+    const result = validateUserOption(def, 'output_format', 42);
+    expect(result.valid).toBe(false);
+    expect(result.error?.reason).toContain('must be a string');
+  });
+
+  it('passes through unknown field type to enum/min/max checks', () => {
+    const def = makeDefinitionWithFields([], ['output_format'], { output_format: { type: 'array' } });
+    const result = validateUserOption(def, 'output_format', 'png');
+    expect(result.valid).toBe(true);
+    expect(result.coerced).toBe('png');
+  });
 });
 
 describe('getSupportedAspectRatios', () => {
