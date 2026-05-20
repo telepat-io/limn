@@ -30,6 +30,9 @@ export async function transform(
     }
   }
 
+  // Strip "prompt:" prefix if the profile uses dual-format output (e.g. SDXL)
+  prompt = prompt.replace(/^prompt:\s*/i, '').trim();
+
   return { model: modelId, prompt, negativePrompt };
 }
 

@@ -202,7 +202,7 @@ function printAnalytics(analytics: GenerationAnalytics, c: Colors): void {
 
 function printModelOptions(modelId: ModelId, c: Colors): void {
   const replicateModelSlug = resolveReplicateModelId(modelId);
-  const definition = DEFINITIONS_BY_MODEL_ID[replicateModelSlug];
+  const definition = DEFINITIONS_BY_MODEL_ID[replicateModelSlug.replace(/:[0-9a-f]{64}$/i, '')];
   if (!definition) {
     console.error(`No definition found for model "${modelId}".`);
     return;

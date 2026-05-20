@@ -174,7 +174,9 @@ async function downloadOutputToBuffer(output: unknown): Promise<{ buffer: Buffer
 
 function generateFilename(modelSlug: string, extension: string): string {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').split('Z')[0];
-  const slugPart = modelSlug.replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').toLowerCase();
+  // Strip version hash (e.g. owner/model:abc123... -> owner/model) for clean filenames
+  const cleanSlug = modelSlug.replace(/:[0-9a-f]{64}$/i, '');
+  const slugPart = cleanSlug.replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-').toLowerCase();
   return `limn_${slugPart}_${timestamp}.${extension}`;
 }
 
@@ -192,7 +194,9 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Im
   }
 
   const modelSlug = resolveReplicateModelId(options.family, options.replicateModelOverride);
-  const definition = DEFINITIONS_BY_MODEL_ID[modelSlug];
+  // Strip version hash for definition lookup (definitions are keyed by base model ID)
+  const baseModelSlug = modelSlug.replace(/:[0-9a-f]{64}$/i, '');
+  const definition = DEFINITIONS_BY_MODEL_ID[baseModelSlug];
   const aspectRatio = options.aspectRatio ?? '1:1';
 
   const configDefaults = config.modelOptions?.[options.family];
@@ -202,10 +206,25 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Im
 
   // Use predictions.create + wait to get full prediction object (id, metrics)
   const startMs = Date.now();
-  let prediction = await replicate.predictions.create({
-    model: modelSlug,
-    input,
-  });
+
+  // Some models require a version hash (e.g. stability-ai/sdxl:abc123...).
+  // The SDK POSTs to /predictions with { version } when a version is supplied,
+  // vs /models/{model}/predictions for a bare model slug. The latter returns
+  // 404 for models that lack a "latest" production version.
+  let prediction: Awaited<ReturnType<typeof replicate.predictions.create>>;
+  const versionMatch = modelSlug.match(/^(.+?):([0-9a-f]{64})$/);
+  if (versionMatch) {
+    prediction = await replicate.predictions.create({
+      model: versionMatch[1]!,
+      version: versionMatch[2]!,
+      input,
+    });
+  } else {
+    prediction = await replicate.predictions.create({
+      model: modelSlug,
+      input,
+    });
+  }
   prediction = await replicate.wait(prediction);
 
   if (prediction.error) {

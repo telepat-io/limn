@@ -231,8 +231,8 @@ export const FAMILY_REGISTRY: Record<ModelId, FamilyEntry> = {
     generationEnabled: true,
   },
   sdxl: {
-    replicateModelIds: ['stability-ai/sdxl'],
-    defaultReplicateModelId: 'stability-ai/sdxl',
+    replicateModelIds: ['stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc'],
+    defaultReplicateModelId: 'stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc',
     generationEnabled: true,
   },
   'nano-banana-pro': {
