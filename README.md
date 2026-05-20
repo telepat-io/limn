@@ -88,6 +88,23 @@ Use `--list-options` on any model to see its full set of supported aspect ratios
 
 Per-model prompting strategies are documented in the [Prompting Guide](https://github.com/telepat-io/limn/blob/main/docs/PROMPTING_GUIDE.md).
 
+## Model Comparison
+
+The same prompt — *"a cyberpunk detective cat in a rainy neon-lit alley"* — transformed through each model's unique syntax and generated via Replicate:
+
+| Model | Transformed Prompt | Generated Image |
+|-------|-------------------|-----------------|
+| **Flux** (schnell) | `A cyberpunk detective cat prowls through a rainy, neon-lit alley, its fur slick and glistening under the vibrant glow of neon signs in colors like #00FF00 and #FF00FF…` | ![Flux](./assets/examples/flux-cyberpunk-cat.webp) |
+| **SDXL** | `masterpiece, best quality, highly detailed, cyberpunk, detective cat, rainy, neon-lit alley, futuristic cityscape, (slick fur:1.3), (intense gaze:1.2)`<br><sub>Neg: `low quality, blurry, distorted, bad anatomy, watermark`</sub> | ![SDXL](./assets/examples/sdxl-cyberpunk-cat.png) |
+| **Nano Banana Pro** | `A sleek, cybernetic-enhanced feline detective prowls a narrow, rain-soaked alley… Shot on Fujifilm GFX100 with 110mm f/2… hyper-realistic digital painting style, the scene includes the text "Cyber Sleuth"…` | ![Nano Banana Pro](./assets/examples/nano-banana-pro-cyberpunk-cat.jpeg) |
+| **Seedream‑4** | `Create an illustration of a cyberpunk detective cat standing in a rainy, neon-lit alley. The cat should be wearing a sleek trench coat and a futuristic hat, with glowing cybernetic eyes…` | ![Seedream-4](./assets/examples/seedream-4-cyberpunk-cat.jpg) |
+| **Z‑Image Turbo** | `A cyberpunk detective cat stands confidently in a narrow, neon-lit alley… shot from a low angle, capturing the cat's penetrating gaze… bathed in vibrant hues of pink, blue, and green from the neon signs…` | ![Z-Image Turbo](./assets/examples/z-image-turbo-cyberpunk-cat.jpeg) |
+| **Qwen Image** | `A cyberpunk detective cat wearing a trench coat, standing in a rainy neon-lit alley, with glowing advertisements reflecting on the wet pavement, Ultra HD, 4K, cinematic composition.` | ![Qwen Image](./assets/examples/qwen-image-cyberpunk-cat.png) |
+| **Wan Image** | `CAMERA MOVEMENT: Pull Back to reveal the alley's depth… LIGHTING & ATMOSPHERE: Volumetric Lighting… Rembrandt Lighting… Shallow Depth of Field to focus on the cat, blurring the neon-lit surroundings…` | ![Wan Image](./assets/examples/wan-image-cyberpunk-cat.jpeg) |
+| **Chroma** | `Digital illustration of a cyberpunk detective cat… anthropomorphic, wearing a sleek black trench coat and a fedora hat… holo badge emitting soft blue glow… electric blues, pinks, and purples…`<br><sub>Neg: `low quality, blurry, distorted, bad anatomy`</sub> | *(prompt only)* |
+
+Each model applies its own syntax — comma‑separated keyword tags for SDXL, front‑loaded natural prose for FLUX, cinematic camera directions for Wan Image, and more. Limn handles all of this in a single command.
+
 ## Using With AI Agents
 
 Limn is designed for agentic and automated workflows:
