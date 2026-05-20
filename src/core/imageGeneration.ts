@@ -29,6 +29,7 @@ export interface ImageGenerationResult {
   buffer: Buffer;
   filename: string;
   savedPath: string;
+  outputUrl: string;
   mimeType: string;
   extension: string;
   replicatePredictionId: string;
@@ -255,6 +256,7 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Im
     buffer,
     filename,
     savedPath,
+    outputUrl: url,
     mimeType,
     extension,
     replicatePredictionId: prediction.id,

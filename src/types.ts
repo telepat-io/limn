@@ -67,6 +67,7 @@ export interface LimnGenerateResult {
   image: Buffer;
   filename: string;
   savedPath: string;
+  outputUrl: string;
   mimeType: string;
   modelSlug: string;
   promptUsed: string;

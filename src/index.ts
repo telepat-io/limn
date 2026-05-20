@@ -123,6 +123,7 @@ export async function limnGenerate(
     image: imageResult.buffer,
     filename: imageResult.filename,
     savedPath: imageResult.savedPath,
+    outputUrl: imageResult.outputUrl,
     mimeType: imageResult.mimeType,
     modelSlug: imageResult.modelSlug,
     promptUsed: transformedPrompt,
