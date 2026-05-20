@@ -90,20 +90,20 @@ Per-model prompting strategies are documented in the [Prompting Guide](https://g
 
 ## Model Comparison
 
-The same prompt — *"a cyberpunk detective cat in a rainy neon-lit alley"* — transformed through each model's unique syntax and generated via Replicate:
+The same prompt — *"an owl librarian at a wooden desk in a grand victorian library, reading a glowing book by candlelight, dust motes floating in sunbeams"* — transformed through each model's unique syntax and generated via Replicate:
 
 | Model | Transformed Prompt | Generated Image |
 |-------|-------------------|-----------------|
-| **Flux** (schnell) | `A cyberpunk detective cat prowls through a rainy, neon-lit alley, its fur slick and glistening under the vibrant glow of neon signs in colors like #00FF00 and #FF00FF…` | ![Flux](./assets/examples/flux-cyberpunk-cat.webp) |
-| **SDXL** | `masterpiece, best quality, highly detailed, cyberpunk, detective cat, rainy, neon-lit alley, futuristic cityscape, (slick fur:1.3), (intense gaze:1.2)`<br><sub>Neg: `low quality, blurry, distorted, bad anatomy, watermark`</sub> | ![SDXL](./assets/examples/sdxl-cyberpunk-cat.png) |
-| **Nano Banana Pro** | `A sleek, cybernetic-enhanced feline detective prowls a narrow, rain-soaked alley… Shot on Fujifilm GFX100 with 110mm f/2… hyper-realistic digital painting style, the scene includes the text "Cyber Sleuth"…` | ![Nano Banana Pro](./assets/examples/nano-banana-pro-cyberpunk-cat.jpeg) |
-| **Seedream‑4** | `Create an illustration of a cyberpunk detective cat standing in a rainy, neon-lit alley. The cat should be wearing a sleek trench coat and a futuristic hat, with glowing cybernetic eyes…` | ![Seedream-4](./assets/examples/seedream-4-cyberpunk-cat.jpg) |
-| **Z‑Image Turbo** | `A cyberpunk detective cat stands confidently in a narrow, neon-lit alley… shot from a low angle, capturing the cat's penetrating gaze… bathed in vibrant hues of pink, blue, and green from the neon signs…` | ![Z-Image Turbo](./assets/examples/z-image-turbo-cyberpunk-cat.jpeg) |
-| **Qwen Image** | `A cyberpunk detective cat wearing a trench coat, standing in a rainy neon-lit alley, with glowing advertisements reflecting on the wet pavement, Ultra HD, 4K, cinematic composition.` | ![Qwen Image](./assets/examples/qwen-image-cyberpunk-cat.png) |
-| **Wan Image** | `CAMERA MOVEMENT: Pull Back to reveal the alley's depth… LIGHTING & ATMOSPHERE: Volumetric Lighting… Rembrandt Lighting… Shallow Depth of Field to focus on the cat, blurring the neon-lit surroundings…` | ![Wan Image](./assets/examples/wan-image-cyberpunk-cat.jpeg) |
-| **Chroma** | `Digital illustration of a cyberpunk detective cat… anthropomorphic, wearing a sleek black trench coat and a fedora hat… holo badge emitting soft blue glow… electric blues, pinks, and purples…`<br><sub>Neg: `low quality, blurry, distorted, bad anatomy`</sub> | *(prompt only)* |
+| **Flux** (schnell) | `An owl librarian sits at a wooden desk in a grand Victorian library, absorbed in reading a glowing book by candlelight. Dust motes float in the sunbeams that filter through the library…` | ![Flux](./assets/examples/flux-owl-librarian.webp) |
+| **SDXL** | `masterpiece, best quality, highly detailed, 8k uhd, owl librarian, wooden desk, grand victorian library, reading, glowing book, candlelight, dust motes, sunbeams`<br><sub>Neg: `low quality, blurry, distorted, bad anatomy`</sub> | ![SDXL](./assets/examples/sdxl-owl-librarian.png) |
+| **Nano Banana Pro** | `An owl librarian sits at a wooden desk in a grand Victorian library, reading from a glowing book illuminated by candlelight. Dust motes float through the air, visible in the sunbeams streaming into the room…` | ![Nano Banana Pro](./assets/examples/nano-banana-pro-owl-librarian.jpeg) |
+| **Seedream‑4** | `An owl librarian sits at a wooden desk in a grand Victorian library, reading a glowing book by candlelight. Dust motes float through the air, illuminated by sunbeams streaming in.` | ![Seedream-4](./assets/examples/seedream-4-owl-librarian.jpg) |
+| **Z‑Image Turbo** | `Owl librarian sitting at a wooden desk in a grand Victorian library, reading a glowing book by candlelight. Dust motes float in sunbeams streaming through the window.` | ![Z-Image Turbo](./assets/examples/z-image-turbo-owl-librarian.jpeg) |
+| **Qwen Image** | `An owl librarian sits at a wooden desk in a grand Victorian library, reading a glowing book by candlelight. Dust motes float in the sunbeams. Ultra HD, 4K, cinematic composition.` | ![Qwen Image](./assets/examples/qwen-image-owl-librarian.png) |
+| **Wan Image** | `A grand Victorian library setting, where an owl librarian is perched at a wooden desk. The scene focuses on the owl as it reads a glowing book, illuminated by the warm glow of candlelight. Sunbeams filter through the space…` | ![Wan Image](./assets/examples/wan-image-owl-librarian.jpeg) |
+| **Chroma** | `Illustration of an owl librarian at a wooden desk in a grand Victorian library. The owl is reading a glowing book by candlelight, with dust motes floating in the sunbeams streaming through the windows.`<br><sub>Neg: `low quality, blurry, distorted, bad anatomy`</sub> | *(prompt only)* |
 
-Each model applies its own syntax — comma‑separated keyword tags for SDXL, front‑loaded natural prose for FLUX, cinematic camera directions for Wan Image, and more. Limn handles all of this in a single command.
+Each model applies its own syntax — comma‑separated keyword tags for SDXL, front‑loaded natural prose for FLUX, cinematic scene language for Wan Image, and more. Limn handles all of this in a single command.
 
 ## Using With AI Agents
 
