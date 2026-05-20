@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.6](https://github.com/telepat-io/limn/compare/limn-v0.1.5...limn-v0.1.6) (2026-05-20)
+
+
+### Features
+
+* add outputUrl to image generation results and update related functions ([f85a916](https://github.com/telepat-io/limn/commit/f85a91666e66a0d3902c14a36bc393e9f9ed8ed7))
+* better system prompts ([545acbb](https://github.com/telepat-io/limn/commit/545acbb1094eb505e7a2a802b9302e6f7cdc1fb5))
+* enhance image generation by supporting versioned model slugs and clean filename generation; update transform function to handle dual-format output ([df94d49](https://github.com/telepat-io/limn/commit/df94d49d1745e602d46a34111408dbae2e878fc5))
+
 ## [0.1.5](https://github.com/telepat-io/limn/compare/limn-v0.1.4...limn-v0.1.5) (2026-05-06)
 
 
