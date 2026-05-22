@@ -4,12 +4,12 @@ import { KeytarUnavailableError } from '../src/core/secretStore.js';
 describe('secretStore', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    delete process.env['LIMN_DISABLE_KEYTAR'];
+    delete process.env['TELEPAT_DISABLE_KEYTAR'];
   });
 
   describe('loadSecrets', () => {
     it('should return null secrets when keytar is disabled', async () => {
-      process.env['LIMN_DISABLE_KEYTAR'] = 'true';
+      process.env['TELEPAT_DISABLE_KEYTAR'] = 'true';
       const { loadSecrets } = await import('../src/core/secretStore.js');
       const secrets = await loadSecrets({ disableKeytar: true });
       expect(secrets.openrouterApiKey).toBeNull();

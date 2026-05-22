@@ -71,8 +71,8 @@ Use Conventional Commits (`fix:`, `feat:`, `docs:`, etc.). This repo uses a rele
 
 ## Credentials
 
-- `OPENROUTER_API_KEY` — highest precedence (env var)
-- `LIMN_DISABLE_KEYTAR` — set to `true` to skip keychain
+- `TELEPAT_OPENROUTER_KEY` — highest precedence (env var)
+- `TELEPAT_DISABLE_KEYTAR` — set to `true` to skip keychain
 
 ## Constraints
 

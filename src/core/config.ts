@@ -13,7 +13,7 @@ const globalConfigSchema = z.object({
 });
 
 function readDisableKeytarEnv(): boolean {
-  const value = process.env['LIMN_DISABLE_KEYTAR'];
+  const value = process.env['TELEPAT_DISABLE_KEYTAR'];
   return value?.trim().toLowerCase() === 'true';
 }
 
@@ -31,11 +31,10 @@ export async function readGlobalConfig(): Promise<GlobalConfig> {
   const [fileConfig, secrets] = await Promise.all([readGlobalNonSecretConfig(), loadSecrets(secretOptions)]);
 
   return {
-    openrouterApiKey: process.env['OPENROUTER_API_KEY'] ?? secrets.openrouterApiKey ?? undefined,
+    openrouterApiKey: process.env['TELEPAT_OPENROUTER_KEY'] ?? secrets.openrouterApiKey ?? undefined,
     openrouterModel: fileConfig.openrouterModel,
     replicateApiKey:
-      process.env['REPLICATE_API_TOKEN'] ??
-      process.env['REPLICATE_API_KEY'] ??
+      process.env['TELEPAT_REPLICATE_TOKEN'] ??
       secrets.replicateApiKey ??
       undefined,
   };

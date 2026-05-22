@@ -94,14 +94,14 @@ Limn 专为智能体和自动化工作流设计：
 
 - **机器可读输出** — `--json` 为仅转换和生成运行返回结构化 JSON。所有字段类型化且可预测。
 - **编程接口** — 库导出 `limn()` 和 `limnGenerate()` 用于函数式使用，以及用于面向对象工作流的 `Limn` 类，支持直接注入 API 密钥。无需交互式提示。
-- **CI 即用** — 通过 `OPENROUTER_API_KEY` 和 `REPLICATE_API_TOKEN` 环境变量或 `Limn` 构造函数传递密钥。无需钥匙串或交互式设置命令。
+- **CI 即用** — 通过 `TELEPAT_OPENROUTER_KEY` 和 `TELEPAT_REPLICATE_TOKEN` 环境变量或 `Limn` 构造函数传递密钥。无需钥匙串或交互式设置命令。
 - **模型目录 API** — `getSupportedModelCatalog()` 暴露权威模型元数据，供下游工具和运行时校验使用。
 
 ## 安全与信任
 
 - 默认通过 `limn settings` 将 API 密钥保存到系统钥匙串。
-- 在 CI 或容器环境中，请使用 `OPENROUTER_API_KEY` 和 `REPLICATE_API_TOKEN` 环境变量。
-- 在无法访问钥匙串时设置 `LIMN_DISABLE_KEYTAR=true`。
+- 在 CI 或容器环境中，请使用 `TELEPAT_OPENROUTER_KEY` 和 `TELEPAT_REPLICATE_TOKEN` 环境变量。
+- 在无法访问钥匙串时设置 `TELEPAT_DISABLE_KEYTAR=true`。
 - `limn settings list` 会将密钥值脱敏显示为 `***configured***`。
 - 生成的图像为模型输出产物，发布前请进行审阅。
 

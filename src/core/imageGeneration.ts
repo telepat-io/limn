@@ -190,7 +190,7 @@ export async function generateImage(options: ImageGenerationOptions): Promise<Im
       'No Replicate API key configured.\n' +
       'Get one at https://replicate.com/account/api-tokens\n' +
       'Then run: limn settings set replicateApiKey <your-key>\n' +
-      'Or set the REPLICATE_API_TOKEN environment variable.',
+      'Or set the TELEPAT_REPLICATE_TOKEN environment variable.',
     );
   }
 

@@ -111,14 +111,14 @@ Limn is designed for agentic and automated workflows:
 
 - **Machine-readable output** — `--json` returns structured JSON for both transform-only and generate runs. Every field is typed and predictable.
 - **Programmatic API** — The library exports `limn()` and `limnGenerate()` for functional use, plus the `Limn` class for object‑oriented workflows with injected API keys. No interactive prompts required.
-- **CI‑ready** — Pass keys via `OPENROUTER_API_KEY` and `REPLICATE_API_TOKEN` environment variables, or through the `Limn` constructor. No keychain or interactive settings command needed.
+- **CI‑ready** — Pass keys via `TELEPAT_OPENROUTER_KEY` and `TELEPAT_REPLICATE_TOKEN` environment variables, or through the `Limn` constructor. No keychain or interactive settings command needed.
 - **Model catalog API** — `getSupportedModelCatalog()` exposes canonical model metadata for downstream tooling and runtime validation.
 
 ## Security and Trust
 
 - API keys are stored in the OS keychain by default via `limn settings`.
-- In CI or containerized environments, use `OPENROUTER_API_KEY` and `REPLICATE_API_TOKEN` environment variables.
-- Set `LIMN_DISABLE_KEYTAR=true` when keychain access is unavailable.
+- In CI or containerized environments, use `TELEPAT_OPENROUTER_KEY` and `TELEPAT_REPLICATE_TOKEN` environment variables.
+- Set `TELEPAT_DISABLE_KEYTAR=true` when keychain access is unavailable.
 - `limn settings list` redacts secret values as `***configured***`.
 - Generated images are model-produced output. Review images before publishing.
 

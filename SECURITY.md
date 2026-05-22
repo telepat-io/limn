@@ -17,13 +17,13 @@ We aim to acknowledge reports within 48 hours and provide an initial assessment 
 ### API Key Handling
 
 - **Keychain storage** — `limn settings set` stores API keys in the OS keychain (macOS Keychain / Linux libsecret) by default.
-- **Environment variables** — `OPENROUTER_API_KEY` and `REPLICATE_API_TOKEN` are respected as the highest-precedence credential sources. This is the recommended path for CI and containerized environments.
+- **Environment variables** — `TELEPAT_OPENROUTER_KEY` and `TELEPAT_REPLICATE_TOKEN` are respected as the highest-precedence credential sources. This is the recommended path for CI and containerized environments.
 - **No plaintext files** — Limn does not write API keys to dotfiles, plaintext config files, or logs.
 - **Secret redaction** — `limn settings list` displays configured secret values as `***configured***`. Secrets are never included in CLI output, logs, or error messages.
 
 ### Configuration
 
-- `LIMN_DISABLE_KEYTAR=true` disables keychain access entirely, falling back to environment variables only. Use this when keychain integration is unavailable or undesirable.
+- `TELEPAT_DISABLE_KEYTAR=true` disables keychain access entirely, falling back to environment variables only. Use this when keychain integration is unavailable or undesirable.
 - `openrouterModel` is the only non-secret configuration value stored in plaintext. It does not contain credentials.
 
 ### Dependencies
