@@ -235,25 +235,20 @@ export const FAMILY_REGISTRY: Record<ModelId, FamilyEntry> = {
     defaultReplicateModelId: 'stability-ai/sdxl:7762fd07cf82c948538e41f63f77d685e02b063e37e496e96eefd46c929f9bdc',
     generationEnabled: true,
   },
-  'nano-banana-pro': {
+  'nano-banana': {
     replicateModelIds: ['google/nano-banana-pro'],
     defaultReplicateModelId: 'google/nano-banana-pro',
     generationEnabled: true,
   },
-  'seedream-4': {
+  seedream: {
     replicateModelIds: ['bytedance/seedream-4'],
     defaultReplicateModelId: 'bytedance/seedream-4',
     generationEnabled: true,
   },
-  'z-image-turbo': {
+  'z-image': {
     replicateModelIds: ['prunaai/z-image-turbo'],
     defaultReplicateModelId: 'prunaai/z-image-turbo',
     generationEnabled: true,
-  },
-  chroma: {
-    replicateModelIds: [],
-    defaultReplicateModelId: null,
-    generationEnabled: false,
   },
   'qwen-image': {
     replicateModelIds: [

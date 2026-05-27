@@ -52,10 +52,6 @@ describe('resolveReplicateModelId', () => {
   it('throws on invalid override', () => {
     expect(() => resolveReplicateModelId('flux', 'some/unknown-model')).toThrow();
   });
-
-  it('throws for chroma (generation disabled)', () => {
-    expect(() => resolveReplicateModelId('chroma')).toThrow('transform-only');
-  });
 });
 
 describe('FAMILY_REGISTRY', () => {
@@ -63,12 +59,7 @@ describe('FAMILY_REGISTRY', () => {
     const keys = Object.keys(FAMILY_REGISTRY);
     expect(keys).toContain('flux');
     expect(keys).toContain('sdxl');
-    expect(keys).toContain('chroma');
     expect(keys).toContain('qwen-image');
-  });
-
-  it('chroma has generationEnabled=false', () => {
-    expect(FAMILY_REGISTRY['chroma'].generationEnabled).toBe(false);
   });
 
   it('flux has generationEnabled=true', () => {
@@ -117,12 +108,10 @@ describe('getSupportedModelCatalog', () => {
     }
   });
 
-  it('marks chroma as transform-only', () => {
-    const chroma = getSupportedModelCatalog().find((entry) => entry.family === 'chroma');
-    expect(chroma).toBeDefined();
-    expect(chroma?.generationEnabled).toBe(false);
-    expect(chroma?.replicateModelIds).toEqual([]);
-    expect(chroma?.defaultReplicateModelId).toBeNull();
+  it('marks wan-image as generation-enabled', () => {
+    const wan = getSupportedModelCatalog().find((entry) => entry.family === 'wan-image');
+    expect(wan).toBeDefined();
+    expect(wan?.generationEnabled).toBe(true);
   });
 });
 

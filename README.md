@@ -21,9 +21,9 @@ Built for developers, designers, and anyone who needs production-quality image p
 
 ## Features
 
-- **One prompt, any model** — FLUX, SDXL, Nano Banana Pro, Seedream‑4, Z‑Image Turbo, Chroma, Qwen Image, and Wan‑Image. Limn rewrites your idea for whichever syntax that model expects.
+- **One prompt, any model** — FLUX, SDXL, Nano Banana, Seedream, Z‑Image, Qwen Image, and Wan‑Image. Limn rewrites your idea for whichever syntax that model expects.
 - **Transform or generate** — Optimize prompts only, or go all the way with Replicate-backed image generation. Get back a WebP file with full cost and timing analytics.
-- **Per-model prompt intelligence** — Every model profile encodes real prompting rules: tag‑based for SDXL, prose for FLUX, reasoning‑first structure for Nano Banana Pro. No guesswork.
+- **Per-model prompt intelligence** — Every model profile encodes real prompting rules: tag‑based for SDXL, prose for FLUX, reasoning‑first structure for Nano Banana. No guesswork.
 - **Cost analytics built-in** — Token counts, generation time, and OpenRouter plus Replicate costs displayed after every run. JSON output captures every number for automation.
 - **Smart API key management** — Keys resolve from environment variables or OS keychain. No plaintext dotfiles. Secret values are redacted by default.
 - **Programmatic API** — Call `limn()`, `limnGenerate()`, or instantiate the `Limn` class with keys passed directly. TypeScript‑first with full type coverage.
@@ -77,7 +77,7 @@ limn -m flux "a cat in space" --generate --aspect-ratio 16:9
 limn -m flux "a cat in space" --generate --replicate-model black-forest-labs/flux-2-pro
 
 # List model options (including supported aspect ratios)
-limn -m seedream-4 "a cat in space" --list-options
+limn -m seedream "a cat in space" --list-options
 ```
 
 ### Aspect Ratio Support
@@ -96,12 +96,11 @@ The same prompt — *"an owl librarian at a wooden desk in a grand victorian lib
 |-------|-------------------|-----------------|
 | **Flux** (schnell) | `An owl librarian sits at a wooden desk in a grand Victorian library, absorbed in reading a glowing book by candlelight. Dust motes float in the sunbeams that filter through the library…` | ![Flux](./assets/examples/flux-owl-librarian.webp) |
 | **SDXL** | `masterpiece, best quality, highly detailed, 8k uhd, owl librarian, wooden desk, grand victorian library, reading, glowing book, candlelight, dust motes, sunbeams`<br><sub>Neg: `low quality, blurry, distorted, bad anatomy`</sub> | ![SDXL](./assets/examples/sdxl-owl-librarian.png) |
-| **Nano Banana Pro** | `An owl librarian sits at a wooden desk in a grand Victorian library, reading from a glowing book illuminated by candlelight. Dust motes float through the air, visible in the sunbeams streaming into the room…` | ![Nano Banana Pro](./assets/examples/nano-banana-pro-owl-librarian.jpeg) |
-| **Seedream‑4** | `An owl librarian sits at a wooden desk in a grand Victorian library, reading a glowing book by candlelight. Dust motes float through the air, illuminated by sunbeams streaming in.` | ![Seedream-4](./assets/examples/seedream-4-owl-librarian.jpg) |
-| **Z‑Image Turbo** | `Owl librarian sitting at a wooden desk in a grand Victorian library, reading a glowing book by candlelight. Dust motes float in sunbeams streaming through the window.` | ![Z-Image Turbo](./assets/examples/z-image-turbo-owl-librarian.jpeg) |
+| **Nano Banana** | `An owl librarian sits at a wooden desk in a grand Victorian library, reading from a glowing book illuminated by candlelight. Dust motes float through the air, visible in the sunbeams streaming into the room…` | ![Nano Banana](./assets/examples/nano-banana-pro-owl-librarian.jpeg) |
+| **Seedream** | `An owl librarian sits at a wooden desk in a grand Victorian library, reading a glowing book by candlelight. Dust motes float through the air, illuminated by sunbeams streaming in.` | ![Seedream](./assets/examples/seedream-4-owl-librarian.jpg) |
+| **Z‑Image** | `Owl librarian sitting at a wooden desk in a grand Victorian library, reading a glowing book by candlelight. Dust motes float in sunbeams streaming through the window.` | ![Z-Image](./assets/examples/z-image-turbo-owl-librarian.jpeg) |
 | **Qwen Image** | `An owl librarian sits at a wooden desk in a grand Victorian library, reading a glowing book by candlelight. Dust motes float in the sunbeams. Ultra HD, 4K, cinematic composition.` | ![Qwen Image](./assets/examples/qwen-image-owl-librarian.png) |
 | **Wan Image** | `A grand Victorian library setting, where an owl librarian is perched at a wooden desk. The scene focuses on the owl as it reads a glowing book, illuminated by the warm glow of candlelight. Sunbeams filter through the space…` | ![Wan Image](./assets/examples/wan-image-owl-librarian.jpeg) |
-| **Chroma** | `Illustration of an owl librarian at a wooden desk in a grand Victorian library. The owl is reading a glowing book by candlelight, with dust motes floating in the sunbeams streaming through the windows.`<br><sub>Neg: `low quality, blurry, distorted, bad anatomy`</sub> | *(prompt only)* |
 
 Each model applies its own syntax — comma‑separated keyword tags for SDXL, front‑loaded natural prose for FLUX, cinematic scene language for Wan Image, and more. Limn handles all of this in a single command.
 

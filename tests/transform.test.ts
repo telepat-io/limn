@@ -32,16 +32,16 @@ describe('transform', () => {
       expect(prompt).toContain('77');
     });
 
-    it('should produce z-image-turbo-specific rules', () => {
-      const prompt = buildSystemPrompt('z-image-turbo');
-      expect(prompt).toContain('Z-Image Turbo');
+    it('should produce z-image-specific rules', () => {
+      const prompt = buildSystemPrompt('z-image');
+      expect(prompt).toContain('Z-Image');
       expect(prompt).toContain('NO NEGATIVE PROMPTS');
       expect(prompt).toContain('FRONT-LOAD');
     });
 
-    it('should produce seedream-4-specific rules', () => {
-      const prompt = buildSystemPrompt('seedream-4');
-      expect(prompt).toContain('Seedream-4');
+    it('should produce seedream-specific rules', () => {
+      const prompt = buildSystemPrompt('seedream');
+      expect(prompt).toContain('Seedream');
       expect(prompt).toContain('FULL SENTENCES ONLY');
     });
 
@@ -52,15 +52,9 @@ describe('transform', () => {
       expect(prompt).toContain('Pull Back');
     });
 
-    it('should produce chroma-specific rules', () => {
-      const prompt = buildSystemPrompt('chroma');
-      expect(prompt).toContain('Chroma');
-      expect(prompt).toContain('STYLE-FORWARD');
-    });
-
-    it('should produce nano-banana-pro-specific rules', () => {
-      const prompt = buildSystemPrompt('nano-banana-pro');
-      expect(prompt).toContain('Nano Banana Pro');
+    it('should produce nano-banana-specific rules', () => {
+      const prompt = buildSystemPrompt('nano-banana');
+      expect(prompt).toContain('Nano Banana');
       expect(prompt).toContain('5-PART STRUCTURE');
     });
 

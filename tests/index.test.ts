@@ -54,8 +54,8 @@ describe('limn library API', () => {
     await expect(limn('a cat in space', 'flux')).rejects.toThrow('No OpenRouter API key configured');
   });
 
-  it('should export all 8 profiles', () => {
-    expect(Object.keys(profiles)).toHaveLength(8);
+  it('should export all 7 profiles', () => {
+    expect(Object.keys(profiles)).toHaveLength(7);
     for (const modelId of VALID_MODELS) {
       expect(profiles[modelId as ModelId]).toBeDefined();
       expect(profiles[modelId as ModelId].id).toBe(modelId);

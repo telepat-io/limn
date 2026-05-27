@@ -85,10 +85,9 @@ export interface SupportedModelCatalogEntry {
 export const VALID_MODELS = [
   'flux',
   'sdxl',
-  'nano-banana-pro',
-  'seedream-4',
-  'z-image-turbo',
-  'chroma',
+  'nano-banana',
+  'seedream',
+  'z-image',
   'qwen-image',
   'wan-image',
 ] as const;

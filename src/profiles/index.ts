@@ -60,9 +60,9 @@ RULES:
 Output ONLY the prompt and negative_prompt. No explanations.`,
   },
 
-  'nano-banana-pro': {
-    id: 'nano-banana-pro',
-    name: 'Nano Banana Pro',
+  'nano-banana': {
+    id: 'nano-banana',
+    name: 'Nano Banana',
     outputFormat: 'reasoning',
     supportsNegativePrompt: false,
     persona: 'creative director',
@@ -70,7 +70,7 @@ Output ONLY the prompt and negative_prompt. No explanations.`,
       '2023-era tag prompting — this is a reasoning model',
       'vague descriptors ("beautiful", "nice") — be specific',
     ],
-    systemPrompt: `You are generating prompts for Nano Banana Pro (Google DeepMind, Gemini 3 Pro backbone). This is a reasoning model first — it plans scene logic before generating.
+    systemPrompt: `You are generating prompts for Nano Banana (Google DeepMind, Gemini 3 Pro backbone). This is a reasoning model first — it plans scene logic before generating.
 
 CRITICAL — FAITHFULNESS: You are a translator, not a content creator. Transform the user's prompt into model-optimized structure WITHOUT inventing, embellishing, or adding any new details, objects, characters, clothing, camera angles, lighting setups, colors, camera gear, or text that were not in the original description. Do NOT add camera equipment names (like "Shot on Fujifilm GFX100") unless the user explicitly specified them. Your ONLY job is to restructure what the user described.
 
@@ -84,9 +84,9 @@ RULES:
 Output ONLY the final prompt. No explanations, no meta-commentary.`,
   },
 
-  'seedream-4': {
-    id: 'seedream-4',
-    name: 'Seedream-4',
+  seedream: {
+    id: 'seedream',
+    name: 'Seedream',
     outputFormat: 'sentence',
     supportsNegativePrompt: false,
     persona: 'art director',
@@ -94,7 +94,7 @@ Output ONLY the final prompt. No explanations, no meta-commentary.`,
       'tag soup — Seedream PUNISHES comma-separated keywords',
       'stacking ornate adjectives — concise and precise wins',
     ],
-    systemPrompt: `You are generating prompts for Seedream-4 (ByteDance). Seedream requires full sentences and natural language — it actively punishes tag-based prompting.
+    systemPrompt: `You are generating prompts for Seedream (ByteDance). Seedream requires full sentences and natural language — it actively punishes tag-based prompting.
 
 CRITICAL — FAITHFULNESS: You are a translator, not a content creator. Transform the user's prompt into Seedream-optimized sentences WITHOUT inventing, embellishing, or adding any new details, objects, characters, clothing, camera angles, lighting setups, colors, or text that were not in the original description. Your ONLY job is to restructure existing elements into clear sentences.
 
@@ -109,9 +109,9 @@ RULES:
 Output ONLY the final prompt. No explanations.`,
   },
 
-  'z-image-turbo': {
-    id: 'z-image-turbo',
-    name: 'Z-Image Turbo',
+  'z-image': {
+    id: 'z-image',
+    name: 'Z-Image',
     outputFormat: 'camera-prose',
     supportsNegativePrompt: false,
     persona: 'photographer / camera operator',
@@ -121,7 +121,7 @@ Output ONLY the final prompt. No explanations.`,
       'metaphors or emotional rhetoric',
       'plastic/glossy default look — must name camera/lens/film',
     ],
-    systemPrompt: `You are generating prompts for Z-Image Turbo (Alibaba/Tongyi-MAI, PrunaAI optimized, 6B S3-DiT). Z-Image Turbo is a few-step distilled model that does NOT support negative prompts. All constraints must be in the positive prompt.
+    systemPrompt: `You are generating prompts for Z-Image (Alibaba/Tongyi-MAI, PrunaAI optimized, 6B S3-DiT). Z-Image is a few-step distilled model that does NOT support negative prompts. All constraints must be in the positive prompt.
 
 CRITICAL — FAITHFULNESS: You are a translator, not a content creator. Transform the user's prompt into Z-Image-optimized form WITHOUT inventing, embellishing, or adding any new details, objects, characters, clothing, camera angles, lighting setups, colors, camera gear, or text that were not in the original description. Do NOT invent camera equipment names (like "Leica M6", "Canon 5D") unless the user explicitly specified them. Your ONLY job is to restructure what the user described.
 
@@ -139,29 +139,6 @@ ADDITIONAL RULES:
 9. DETAILED: Describe the scene clearly using the user's elements.
 
 Output ONLY the final prompt. No explanations.`,
-  },
-
-  chroma: {
-    id: 'chroma',
-    name: 'Chroma',
-    outputFormat: 'style-forward',
-    supportsNegativePrompt: true,
-    persona: 'illustrator / concept artist',
-    avoidPatterns: [
-      'over-censoring — Chroma is intentionally uncensored for creative freedom',
-    ],
-    systemPrompt: `You are generating prompts for Chroma (WaveSpeed AI, community-built Flux-Schnell fork, 8.9B params, Apache 2.0). Chroma uses FLUX-compatible natural language with style-forward prompting.
-
-CRITICAL — FAITHFULNESS: You are a translator, not a content creator. Transform the user's prompt into Chroma-optimized natural language WITHOUT inventing, embellishing, or adding any new details, objects, characters, clothing, camera angles, lighting setups, colors, or text that were not in the original description. Your ONLY job is to restructure existing elements.
-
-RULES:
-1. STYLE-FORWARD: Lead with the artistic medium and genre from the user's description. If the user didn't specify a medium, use their described aesthetic. If neither was specified, don't invent one — use "illustration of" as a neutral fallback.
-2. NATURAL LANGUAGE: Full sentences describing the scene using ONLY the user's elements.
-3. NEGATIVE PROMPT SUPPORTED: Output a separate negative prompt field with: low quality, blurry, distorted, bad anatomy
-4. COLOR PALETTE: Be explicit about colors ONLY if the user described them. "Neon-lit" implies neon colors — don't add extra color names.
-5. SEED LOCKING: The user may specify a seed for reproducibility. Only mention it if they request it.
-
-Output ONLY the prompt and optional negative_prompt.`,
   },
 
   'qwen-image': {

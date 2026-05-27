@@ -21,9 +21,9 @@ Limn 将自然语言想法转化为适配各 T2I 模型的优化提示词。选�
 
 ## 功能特性
 
-- **一个提示，适配所有模型** — 支持 FLUX、SDXL、Nano Banana Pro、Seedream‑4、Z‑Image Turbo、Chroma、Qwen Image 和 Wan‑Image。Limn 会针对每种模型的偏好语法重写你的想法。
+- **一个提示，适配所有模型** — 支持 FLUX、SDXL、Nano Banana、Seedream、Z‑Image、Qwen Image 和 Wan‑Image。Limn 会针对每种模型的偏好语法重写你的想法。
 - **仅转换或直接生成** — 可以只优化提示词，也可以一路生成图像。获得带完整成本与耗时分析的 WebP 文件。
-- **按模型定制的提示智能** — 每个模型配置文件都编码了真实的提示规则：SDXL 的逗号标签风格、FLUX 的散文风格、Nano Banana Pro 的推理优先结构。零猜测。
+- **按模型定制的提示智能** — 每个模型配置文件都编码了真实的提示规则：SDXL 的逗号标签风格、FLUX 的散文风格、Nano Banana 的推理优先结构。零猜测。
 - **内置成本分析** — 每次运行后显示 token 数量、生成时间和 OpenRouter 与 Replicate 的费用。JSON 输出可捕获所有数据，便于自动化。
 - **智能 API 密钥管理** — 密钥从环境变量或系统钥匙串解析。不使用明文 dotfile。默认情况下密文值会被脱敏显示。
 - **编程接口** — 调用 `limn()`、`limnGenerate()` 或直接传入密钥实例化 `Limn` 类。TypeScript 优先，完整类型覆盖。
@@ -77,7 +77,7 @@ limn -m flux "a cat in space" --generate --aspect-ratio 16:9
 limn -m flux "a cat in space" --generate --replicate-model black-forest-labs/flux-2-pro
 
 # 列出模型选项（包括支持的宽高比）
-limn -m seedream-4 "a cat in space" --list-options
+limn -m seedream "a cat in space" --list-options
 ```
 
 ### 宽高比支持
