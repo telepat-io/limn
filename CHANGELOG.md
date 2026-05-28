@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.7](https://github.com/telepat-io/limn/compare/limn-v0.1.6...limn-v0.1.7) (2026-05-28)
+
+
+### Features
+
+* standardize env vars to TELEPAT_OPENROUTER_KEY, TELEPAT_REPLICATE_TOKEN, TELEPAT_DISABLE_KEYTAR ([bb7c538](https://github.com/telepat-io/limn/commit/bb7c5389ec46fa0c9bac419f0d6cf41851d3f747))
+* update model names and remove deprecated entries in documentation and code ([96af080](https://github.com/telepat-io/limn/commit/96af0801e649f27f559e2cb9ac8a7e1f174a1e2a))
+
 ## [0.1.6](https://github.com/telepat-io/limn/compare/limn-v0.1.5...limn-v0.1.6) (2026-05-20)
 
 
