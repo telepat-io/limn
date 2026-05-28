@@ -1,6 +1,6 @@
 {
   "name": "@telepat/limn",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Translate natural language prompts into model-optimized prompts for T2I image generation models",
   "type": "module",
   "license": "MIT",
@@ -24,6 +24,7 @@
     "typecheck": "tsc --noEmit",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "build:guide": "tsx scripts/build-guide.ts",
+    "prepare": "npm run build",
     "prepublishOnly": "npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "keywords": [
